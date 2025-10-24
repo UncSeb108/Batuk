@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
-// Temporary images — replace with your art later
 const artworks = [
   { src: "/batuk/0001.jpg", title: "Roots of Rhythm" },
   { src: "/batuk/0002.png", title: "A Burst of Light" },
@@ -53,12 +52,12 @@ export default function GallerySection() {
 
   return (
     <div className="h-full w-full px-6 py-20 overflow-y-auto">
-      {/* Header */}
+      
       <h2 className="text-center text-5xl font-playfair-display font-bold mb-16 mt-16 text-black">
         Gallery
       </h2>
 
-      {/* Masonry Grid */}
+      
       <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
         {artworks.map((item, index) => (
           <motion.div
@@ -77,7 +76,7 @@ export default function GallerySection() {
         ))}
       </div>
 
-      {/* Lightbox Modal */}
+      
       <AnimatePresence>
         {selected !== null && (
           <motion.div
@@ -103,7 +102,7 @@ export default function GallerySection() {
               />
             </motion.div>
 
-            {/* Close Button */}
+            
             <button
               onClick={() => setSelected(null)}
               className="absolute top-6 right-6 text-white bg-black/60 p-3 rounded-full hover:bg-black transition cursor-pointer"

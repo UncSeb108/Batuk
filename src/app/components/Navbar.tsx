@@ -31,14 +31,12 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 w-full bg-[#ffffff]/70 text-[#000000] z-100 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link href="/home" className="flex items-center space-x-2">
             <span className="font-bold text-3xl tracking-wide font-playfair-display">
               Batuk Arts
             </span>
           </Link>
 
-          {/* Desktop Links */}
           <div className="hidden md:flex space-x-12">
             {navLinks.map(({ href, label }) => (
               <Link
@@ -50,7 +48,6 @@ export default function Navbar() {
               >
                 {label}
 
-                {/* Underline */}
                 <span
                   className={`
       absolute left-0 -bottom-1 h-[2px] bg-black transition-all duration-300 
@@ -61,7 +58,6 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button onClick={toggleMenu} className="focus:outline-none">
               {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -70,7 +66,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
