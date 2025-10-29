@@ -4,6 +4,7 @@ import { Playfair_Display } from "next/font/google";
 import { Nunito_Sans } from "next/font/google";
 import Navbar from "./components/Navbar";
 import PathnameWrapper from "./pathname-wrapper";
+import { CartProvider } from "./context/CartContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,8 +43,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${nunitoSans.variable} antialiased`}
     >
       <body>
-        <Navbar />
-        <PathnameWrapper>{children}</PathnameWrapper>
+        <CartProvider>
+          <Navbar />
+          <PathnameWrapper>{children}</PathnameWrapper>
+        </CartProvider>
       </body>
     </html>
   );

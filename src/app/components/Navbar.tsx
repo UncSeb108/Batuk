@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ShoppingCart } from "lucide-react";
+import { useCart } from "../context/CartContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { cart } = useCart();
 
   const navLinks = [
     { label: "Home", href: "/home" },
@@ -57,6 +59,16 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
+          <div className="hidden md:flex items-center space-x-4">
+            <Link href="/cart" className="relative group">
+              <ShoppingCart size={30} />
+              {cart.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-black text-white rounded-lg w-5 h-5 text-xs flex items-center justify-center font-semibold font-nunito-sans">
+                  {cart.length}
+                </span>
+              )}
+            </Link>
+          </div>
 
           <div className="md:hidden">
             <button onClick={toggleMenu} className="focus:outline-none">
@@ -65,7 +77,6 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-
       <AnimatePresence>
         {isOpen && (
           <motion.div
