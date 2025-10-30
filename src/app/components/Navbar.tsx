@@ -35,7 +35,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link href="/home" className="flex items-center space-x-2">
             <span className="font-bold text-3xl tracking-wide font-playfair-display">
-              Batuk Arts
+              Battuk Arts
             </span>
           </Link>
 

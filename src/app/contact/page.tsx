@@ -38,7 +38,7 @@ export default function ContactSection() {
         </form>
 
         <div className="mt-8 text-gray-600 text-sm font-nunito-sans">
-          Or email: <span className="text-black font-semibold">hello@batukarts.com</span>
+          Or email: <span className="text-black font-semibold">sirmabatuk@gmail.com</span>
         </div>
       </div>
     </div>
