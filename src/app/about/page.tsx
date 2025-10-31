@@ -23,10 +23,7 @@ export default function AboutSection() {
           </h2>
 
           <p className="text-base text-gray-800 leading-relaxed font-nunito-sans mb-6">
-            I am an African contemporary artist celebrating culture, resilience,
-            and identity through bold strokes and imaginative storytelling.
-            Batuk Arts embodies the spirit of our roots — vibrant like the land,
-            timeless like the rhythm.
+          As a young Kenyan artist, I explore the tension between external structures and internal realities - between what is visible and what is buried. My work is grounded in the surreal and emotional chaos of living in a society where violence and spirituality are ever-present, often entangled. Battuk Benniar is a multidisciplinary artist based in Kenya whose work explores the intersections of surrealism, justice, and inner conflict. He works in printmaking, painting, and mixed media to probe questions of identity, trauma, and spirituality. His practice is rooted in lived experience and draws from both traditional motifs and contemporary political anxieties.
           </p>
 
           <Link
