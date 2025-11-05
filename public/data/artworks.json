@@ -1,7 +1,7 @@
 [
     {
         "src": "/images/0001.jpg",
-        "title": "Untitled",
+        "title": "Crucification",
         "uid": "bt-pt-25-001",
         "price": "KES 3,000",
         "status": "Sold",
@@ -9,7 +9,7 @@
         "materials": "Acrylic on Canvas",
         "duration": "1 week",
         "type": "Portrait",
-        "inspiration": "The artwork draws inspiration from the rich cultural heritage and rhythmic traditions of African societies, celebrating the deep connection between music, dance, and community."
+        "inspiration": "Crucifixion."
     },
     {
         "src": "/images/0002.png",
@@ -21,7 +21,7 @@
         "materials": "Acrylic and oil on canvas",
         "duration": "4 weeks",
         "type": "African Portraiture",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
+        "inspiration": "Black women as well as Black men have been programmed to view each other with distrust. We both have been forced to focus upon our separateness, and to deny our joint energy for survival. It is axiomatic that if we do not define ourselves for ourselves, we will be defined by others for their use and to our detriment."
     },
     {
         "src": "/images/0003.png",
@@ -85,20 +85,8 @@
     },
     {
         "src": "/images/0008.jpg",
-        "title": "Internal Affairs",
-        "uid": "bt-pt-pb-25-008",
-        "price": "KES 20,000",
-        "status": "Available",
-        "state": "Completed",
-        "materials": "Mixed-media on Canvas",
-        "duration": "4 weeks",
-        "type": "Realism",
-        "inspiration": "Police brutality in Kenya."
-    },
-    {
-        "src": "/images/0009.jpg",
         "title": "Baby Pendo",
-        "uid": "bt-pt-pb-25-009",
+        "uid": "bt-pt-pb-25-008",
         "price": "KES 43,000",
         "status": "Available",
         "state": "Completed",
@@ -108,21 +96,9 @@
         "inspiration": "The death of baby Pendo."
     },
     {
-        "src": "/images/0010.jpg",
-        "title": "The Hidden Legacy",
-        "uid": "batuk0010",
-        "price": "KES 1,400",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "Acrylic on Canvas",
-        "duration": "4 weeks",
-        "type": "Portrait",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
-    },
-    {
-        "src": "/images/0011.jpg",
+        "src": "/images/0009.jpg",
         "title": "Untitled",
-        "uid": "bt-dr-25-011",
+        "uid": "bt-dr-25-009",
         "price": "Undiscosed",
         "status": "Sold",
         "state": "Completed",
@@ -132,13 +108,37 @@
         "inspiration": "Commission work."
     },
     {
-        "src": "/images/0012.jpg",
+        "src": "/images/0010.jpg",
         "title": "Untitled",
-        "uid": "bt-dr-25-012",
+        "uid": "bt-dr-25-010",
         "price": "Undiclosed",
         "status": "Sold",
         "state": "Completed",
         "materials": "Graphite and Charcool on paper. A3",
+        "duration": "1 week",
+        "type": "Portrait",
+        "inspiration": "Commission work."
+    },
+    {
+        "src": "/images/0011.jpg",
+        "title": "Untitled",
+        "uid": "bt-dr-25-011",
+        "price": "Undiclosed",
+        "status": "Sold",
+        "state": "Completed",
+        "materials": "Pen on paper",
+        "duration": "1 week",
+        "type": "Portrait",
+        "inspiration": "Commission work."
+    },
+    {
+        "src": "/images/0012.jpg",
+        "title": "Untitled",
+        "uid": "bt-dr-25-012",
+        "price": "Undisclosed",
+        "status": "Sold",
+        "state": "Completed",
+        "materials": "Color pencil and graphite on paper. A4",
         "duration": "1 week",
         "type": "Portrait",
         "inspiration": "Commission work."
@@ -150,51 +150,15 @@
         "price": "Undiclosed",
         "status": "Sold",
         "state": "Completed",
-        "materials": "Pen on paper",
-        "duration": "1 week",
-        "type": "Portrait",
-        "inspiration": "Commission work."
-    },
-    {
-        "src": "/images/0014.jpg",
-        "title": "Untitled",
-        "uid": "bt-dr-25-014",
-        "price": "Undisclosed",
-        "status": "Sold",
-        "state": "Completed",
-        "materials": "Color pencil and graphite on paper. A4",
-        "duration": "1 week",
-        "type": "Portrait",
-        "inspiration": "Commission work."
-    },
-    {
-        "src": "/images/0015.jpg",
-        "title": "Untitled",
-        "uid": "bt-dr-25-15",
-        "price": "Undiclosed",
-        "status": "Sold",
-        "state": "Completed",
         "materials": "Pen and watercolor on watercolor paper. A4",
         "duration": "1 weeks",
         "type": "Portrait",
         "inspiration": "Commission work."
     },
     {
-        "src": "/images/0016.jpg",
+        "src": "/images/0014.jpg",
         "title": "The Hidden Legacy",
-        "uid": "batuk0016",
-        "price": "KES 2,000",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "",
-        "duration": "4 weeks",
-        "type": "Portrait",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
-    },
-    {
-        "src": "/images/0017.jpg",
-        "title": "The Hidden Legacy",
-        "uid": "batuk0017",
+        "uid": "bt-pt-25-14",
         "price": "KES 2,100",
         "status": "Available",
         "state": "In Progress",
@@ -204,45 +168,9 @@
         "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
     },
     {
-        "src": "/images/0018.jpg",
-        "title": "The Hidden Legacy",
-        "uid": "batuk0018",
-        "price": "KES 2,200",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "Acrylic on Canvas",
-        "duration": "4 weeks",
-        "type": "Portrait",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
-    },
-    {
-        "src": "/images/0019.jpg",
-        "title": "The Hidden Legacy",
-        "uid": "batuk0019",
-        "price": "KES 2,300",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "Acrylic on Canvas",
-        "duration": "4 weeks",
-        "type": "Portrait",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
-    },
-    {
-        "src": "/images/0020.jpg",
-        "title": "The Hidden Legacy",
-        "uid": "batuk0020",
-        "price": "KES 2,400",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "Acrylic on Canvas",
-        "duration": "4 weeks",
-        "type": "Portrait",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
-    },
-    {
-        "src": "/images/0021.jpg",
+        "src": "/images/0015.jpg",
         "title": "Ancestral Vigil",
-        "uid": "bt-pt-25-021",
+        "uid": "bt-pt-25-015",
         "price": "KES 70,500",
         "status": "Available",
         "state": "Completed",
@@ -252,21 +180,9 @@
         "inspiration": "Ancestral Connection."
     },
     {
-        "src": "/images/0022.jpg",
-        "title": "The Hidden Legacy",
-        "uid": "batuk0022",
-        "price": "KES 2,600",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "Acrylic on Canvas",
-        "duration": "4 weeks",
-        "type": "Portrait",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
-    },
-    {
-        "src": "/images/0023.jpg",
+        "src": "/images/0016.jpg",
         "title": "This Little Light of Mine",
-        "uid": "bt-pt-25-023",
+        "uid": "bt-pt-25-016",
         "price": "KES 37,000",
         "status": "Sold",
         "state": "Completed",
@@ -276,9 +192,9 @@
         "inspiration": "The impact of art."
     },
     {
-        "src": "/images/0024.jpg",
+        "src": "/images/0017.jpg",
         "title": "Ancestor",
-        "uid": "bt-dr-25-024",
+        "uid": "bt-dr-25-017",
         "price": "KES 5,000",
         "status": "Available",
         "state": "Completed",
@@ -288,9 +204,9 @@
         "inspiration": "My African Roots."
     },
     {
-        "src": "/images/0025.jpg",
+        "src": "/images/0018.jpg",
         "title": "Single I",
-        "uid": "batuk0025",
+        "uid": "bt-pt-25-018",
         "price": "KES 1,900",
         "status": "Sold",
         "state": "In Progress",
@@ -300,21 +216,9 @@
         "inspiration": "Multifacetted nature of self."
     },
     {
-        "src": "/images/0026.jpg",
-        "title": "The Hidden Legacy",
-        "uid": "batuk0026",
-        "price": "KES 3,000",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "Acrylic on Canvas",
-        "duration": "4 weeks",
-        "type": "Portrait",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
-    },
-    {
-        "src": "/images/0027.jpg",
+        "src": "/images/0019.jpg",
         "title": "Single I",
-        "uid": "bt-pt-25-027",
+        "uid": "bt-pt-25-019",
         "price": "KES 10,000",
         "status": "Sold",
         "state": "Completed",
@@ -324,9 +228,9 @@
         "inspiration": "Internal Fragmentation."
     },
     {
-        "src": "/images/0028.jpg",
+        "src": "/images/0020.jpg",
         "title": "Tujiangalie",
-        "uid": "bt-dr-25-028",
+        "uid": "bt-dr-25-020",
         "price": "KES 3,200",
         "status": "Available",
         "state": "In Progress",
@@ -336,9 +240,9 @@
         "inspiration": "Corruption and bad governance."
     },
     {
-        "src": "/images/0029.jpg",
+        "src": "/images/0021.jpg",
         "title": "Ancestral Roots",
-        "uid": "bt-dr-25-029",
+        "uid": "bt-dr-25-021",
         "price": "KES 3,300",
         "status": "Available",
         "state": "Completed",
@@ -348,21 +252,9 @@
         "inspiration": "African Identity."
     },
     {
-        "src": "/images/0030.jpg",
-        "title": "Internal Affairs",
-        "uid": "bt-pt-pb-25-030",
-        "price": "KES 20,000",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "Mixed-media on PVC flooring. 60cm x 80cm",
-        "duration": "4 weeks",
-        "type": "Social commentary",
-        "inspiration": "Police brutality in Kenya."
-    },
-    {
-        "src": "/images/0031.png",
+        "src": "/images/0022.png",
         "title": "Mvumilivu",
-        "uid": "bt-wp-25-031",
+        "uid": "bt-wp-25-022",
         "price": "KES 4,500",
         "status": "Sold",
         "state": "Completed",
@@ -372,51 +264,15 @@
         "inspiration": "GenZ Protest in Africa."
     },
     {
-        "src": "/images/0032.jpg",
+        "src": "/images/0023.jpg",
         "title": "Simple I",
-        "uid": "bt-sp-25-032",
+        "uid": "bt-sp-25-023",
         "price": "KES 40,000",
         "status": "Sold",
         "state": "Completed",
         "materials": "Screen print on paper. 61cm x 61cm",
         "duration": "8 weeks",
         "type": "Print",
-        "inspiration": "Multifacetted nature of self."
-    },
-    {
-        "src": "/images/0033.jpg",
-        "title": "The Hidden Legacy",
-        "uid": "batuk0033",
-        "price": "KES 3,700",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "Acrylic on Canvas",
-        "duration": "4 weeks",
-        "type": "Portrait",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
-    },
-    {
-        "src": "/images/0034.jpg",
-        "title": "The Hidden Legacy",
-        "uid": "batuk0034",
-        "price": "KES 3,800",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "Acrylic on Canvas",
-        "duration": "4 weeks",
-        "type": "Portrait",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
-    },
-    {
-        "src": "/images/0035.jpg",
-        "title": "The Hidden Legacy",
-        "uid": "batuk0035",
-        "price": "KES 3,900",
-        "status": "Available",
-        "state": "In Progress",
-        "materials": "Acrylic on Canvas",
-        "duration": "4 weeks",
-        "type": "Portrait",
-        "inspiration": "The artwork is inspired by the vibrant and dynamic nature of African culture, highlighting the beauty and diversity of African music, dance, and traditions."
+        "inspiration": "Multifaceted nature of self."
     }
 ]
