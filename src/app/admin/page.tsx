@@ -5,8 +5,8 @@ import Image from "next/image";
 
 // 🔢 Helper to auto-generate UID like bt-pt-25-001
 const generateUID = (type: string, count: number) => {
-  const year = new Date().getFullYear().toString().slice(-2); // e.g., 25
-  const num = String(count + 1).padStart(3, "0"); // 001, 002...
+  const year = new Date().getFullYear().toString().slice(-2);
+  const num = String(count + 1).padStart(3, "0");
   return `bt-${type}-${year}-${num}`;
 };
 
@@ -18,7 +18,7 @@ export default function ArtGalleryManager() {
     state: "Available",
     message: "",
     image: "",
-    type: "pt", // default: painting
+    type: "pt",
     series: "",
   });
 
@@ -37,7 +37,7 @@ export default function ArtGalleryManager() {
       state: "Available",
       message: "",
       image: "",
-      type: "portrait",
+      type: "pt",
       series: "",
     });
   };
@@ -59,103 +59,144 @@ export default function ArtGalleryManager() {
   };
 
   return (
-    <div className="min-h-screen p-10 bg-gray-50">
-      <h1 className="text-3xl font-playfair-display font-bold mb-6">
-        🎨 Manage Gallery
-      </h1>
+    <div className="min-h-screen bg-white py-12 px-6 sm:px-12 lg:px-24">
+      <div className="max-w-4xl mx-auto text-center">
+        <h1 className="text-4xl font-bold font-playfair-display mb-3">
+          Manage Gallery
+        </h1>
+        <p className="text-gray-600 mb-10">
+          Add, preview, or remove artworks from your Battuk Arts collection.
+        </p>
+      </div>
 
       {/* Add Artwork Form */}
-      <div className="bg-white p-6 rounded-xl shadow mb-10">
-        <h2 className="text-xl font-semibold mb-4">Add Artwork</h2>
+      <div className="max-w-4xl mx-auto bg-gray-50 p-8 rounded-2xl shadow-md mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-center">Add Artwork</h2>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            placeholder="Title"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="border p-2 rounded"
-          />
+        <div className="grid md:grid-cols-2 gap-5">
+          <div className="flex flex-col">
+            <label className="font-medium mb-1 text-sm text-gray-700">
+              Title
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Sunset Dreams"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
 
-          <input
-            type="text"
-            placeholder="Price (KES)"
-            value={form.price}
-            onChange={(e) => setForm({ ...form, price: e.target.value })}
-            className="border p-2 rounded"
-          />
+          <div className="flex flex-col">
+            <label className="font-medium mb-1 text-sm text-gray-700">
+              Price (KES)
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. 5000"
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value })}
+              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
 
-          <select
-            value={form.state}
-            onChange={(e) => setForm({ ...form, state: e.target.value })}
-            className="border p-2 rounded"
-          >
-            <option>Available</option>
-            <option>Sold</option>
-          </select>
+          <div className="flex flex-col">
+            <label className="font-medium mb-1 text-sm text-gray-700">
+              Availability
+            </label>
+            <select
+              value={form.state}
+              onChange={(e) => setForm({ ...form, state: e.target.value })}
+              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+            >
+              <option>Available</option>
+              <option>Sold</option>
+            </select>
+          </div>
 
-          <select
-            value={form.type}
-            onChange={(e) => setForm({ ...form, type: e.target.value })}
-            className="border p-2 rounded"
-          >
-            <option value="pt">Painting</option>
-            <option value="dr">Drawing</option>
-            <option value="wp">Wood Piece</option>
-            <option value="sp">Screen Print</option>
-          </select>
+          <div className="flex flex-col">
+            <label className="font-medium mb-1 text-sm text-gray-700">
+              Type
+            </label>
+            <select
+              value={form.type}
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
+              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+            >
+              <option value="pt">Painting</option>
+              <option value="dr">Drawing</option>
+              <option value="wp">Wood Piece</option>
+              <option value="sp">Screen Print</option>
+            </select>
+          </div>
 
-          <input
-            type="text"
-            placeholder="Series (optional)"
-            value={form.series}
-            onChange={(e) => setForm({ ...form, series: e.target.value })}
-            className="border p-2 rounded"
-          />
+          <div className="flex flex-col md:col-span-1">
+            <label className="font-medium mb-1 text-sm text-gray-700">
+              Series (optional)
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Nature Collection"
+              value={form.series}
+              onChange={(e) => setForm({ ...form, series: e.target.value })}
+              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
 
-          {/* File Upload */}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            className="border p-2 rounded"
-          />
+          <div className="flex flex-col md:col-span-1">
+            <label className="font-medium mb-1 text-sm text-gray-700">
+              Upload Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
         </div>
 
-        {/* Preview */}
         {form.image && (
-          <div className="mt-4">
+          <div className="mt-6 flex justify-center">
             <Image
               src={form.image}
               alt="Preview"
-              width={300}
-              height={200}
-              className="rounded-lg object-cover"
+              width={350}
+              height={250}
+              className="rounded-xl shadow-md object-cover"
             />
           </div>
         )}
 
-        <textarea
-          placeholder="Message / Description"
-          value={form.message}
-          onChange={(e) => setForm({ ...form, message: e.target.value })}
-          className="border p-2 rounded mt-4 w-full"
-        ></textarea>
+        <div className="flex flex-col mt-6">
+          <label className="font-medium mb-1 text-sm text-gray-700">
+            Message / Description
+          </label>
+          <textarea
+            placeholder="Describe your artwork or share its story..."
+            value={form.message}
+            onChange={(e) => setForm({ ...form, message: e.target.value })}
+            className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black w-full"
+            rows={3}
+          ></textarea>
+        </div>
 
-        <button
-          onClick={handleAdd}
-          className="mt-4 px-6 py-2 bg-black text-white rounded hover:bg-gray-800"
-        >
-          Add Artwork
-        </button>
+        <div className="text-center mt-6">
+          <button
+            onClick={handleAdd}
+            className="px-8 py-3 bg-black text-white rounded-md font-medium hover:bg-gray-800 transition"
+          >
+            Add Artwork
+          </button>
+        </div>
       </div>
 
       {/* Artwork List */}
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="max-w-5xl mx-auto grid sm:grid-cols-2 md:grid-cols-3 gap-8">
         {artworks.map((art) => (
           <div
             key={art.uid}
-            className="bg-white shadow rounded-xl overflow-hidden"
+            className="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden hover:shadow-md transition"
           >
             <Image
               src={art.image}
@@ -164,19 +205,15 @@ export default function ArtGalleryManager() {
               height={400}
               className="object-cover w-full h-60"
             />
-            <div className="p-4">
-              <h3 className="text-lg font-semibold">{art.title}</h3>
-              <p className="text-sm text-gray-500">
+            <div className="p-4 text-center">
+              <h3 className="text-lg font-semibold mb-1">{art.title}</h3>
+              <p className="text-sm text-gray-600">
                 {art.price || "Undisclosed"}
               </p>
-              <p className="text-xs text-gray-400 mt-1">UID: {art.uid}</p>
-
+              <p className="text-xs text-gray-400">UID: {art.uid}</p>
               {art.series && (
-                <p className="text-xs text-blue-500 mt-1">
-                  Series: {art.series}
-                </p>
+                <p className="text-xs text-blue-500">Series: {art.series}</p>
               )}
-
               <p
                 className={`text-xs mt-1 ${
                   art.state === "Sold" ? "text-red-500" : "text-green-600"
@@ -184,14 +221,12 @@ export default function ArtGalleryManager() {
               >
                 {art.state}
               </p>
-
               {art.message && (
                 <p className="text-sm text-gray-700 mt-2">{art.message}</p>
               )}
-
               <button
                 onClick={() => handleDelete(art.uid)}
-                className="mt-3 px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                className="mt-3 px-4 py-2 bg-red-500 text-white text-sm rounded-md hover:bg-red-600 transition"
               >
                 Delete
               </button>
