@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
-import artworks from "@/public/data/artworks.json";
 import { useCart } from "../context/CartContext";
+import useSWR from "swr";
 
 interface Artwork {
   src: string;
@@ -13,24 +13,34 @@ interface Artwork {
   price: string;
   status: string;
   state: string;
-  materials: string;
-  duration: string;
-  type: string;
-  inspiration: string;
+  materials?: string;
+  duration?: string;
+  type?: string;
+  inspiration?: string;
 }
 
 const TABS = ["Available", "Sold", "Exhibition"] as const;
 
+// SWR fetcher
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function ShopSection() {
-  const [activeTab, setActiveTab] =
-    useState<(typeof TABS)[number]>("Available");
+  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Available");
   const [toast, setToast] = useState<string | null>(null);
   const { cart, addToCart } = useCart();
 
+  // Fetch artworks from the DB and refresh every 5 seconds
+  const { data: artworks = [] } = useSWR<Artwork[]>("/api/gallery", fetcher, {
+    refreshInterval: 5000,
+  });
+
+  // Ensure artworks is always an array
+  const safeArtworks = Array.isArray(artworks) ? artworks : [];
+
   const grouped = {
-    Available: artworks.filter((a: Artwork) => a.status === "Available"),
-    Sold: artworks.filter((a: Artwork) => a.status === "Sold"),
-    Exhibition: artworks.filter((a: Artwork) => a.status === "Exhibition"),
+    Available: safeArtworks.filter((a) => a.status === "Available"),
+    Sold: safeArtworks.filter((a) => a.status === "Sold"),
+    Exhibition: safeArtworks.filter((a) => a.status === "Exhibition"),
   };
 
   const handleAddToCart = (item: Artwork) => {
@@ -42,20 +52,20 @@ export default function ShopSection() {
     if (cart.find((cartItem) => cartItem.uid === item.uid)) {
       setToast("Item already in cart");
     } else {
-      const cartItem = {
+      addToCart({
         uid: item.uid,
         title: item.title,
         price: item.price,
         src: item.src,
         status: item.status,
-      };
-      addToCart(cartItem);
+      });
       setToast("Added to cart successfully!");
     }
 
     setTimeout(() => setToast(null), 3000);
   };
 
+  // RETURN/UI remains exactly the same
   return (
     <div className="min-h-screen w-full px-6 py-24 bg-[#ffffff] font-nunito-sans">
       <h2 className="text-center text-5xl font-playfair-display font-bold mb-12 text-black">

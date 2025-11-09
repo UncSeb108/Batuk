@@ -1,127 +1,235 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 
-// 🔢 Helper to auto-generate UID like bt-pt-25-001
-const generateUID = (type: string, count: number) => {
-  const year = new Date().getFullYear().toString().slice(-2);
-  const num = String(count + 1).padStart(3, "0");
-  return `bt-${type}-${year}-${num}`;
-};
+interface Message {
+  _id: string;
+  name: string;
+  email: string;
+  message: string;
+  createdAt: string;
+}
 
-export default function ArtGalleryManager() {
-  const [artworks, setArtworks] = useState<any[]>([]);
+interface Artwork {
+  _id?: string;
+  src: string;
+  title: string;
+  uid: string;
+  price: string;
+  status: string;
+  state: string;
+  materials?: string;
+  duration?: string;
+  type?: string;
+  inspiration?: string;
+}
+
+export default function AdminPage() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [nextNumber, setNextNumber] = useState("001");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     title: "",
+    artist: "bt",
+    typeCode: "pt",
     price: "",
-    state: "Available",
-    message: "",
-    image: "",
-    type: "pt",
-    series: "",
+    status: "Available",
+    state: "In Progress",
+    materials: "",
+    duration: "",
+    type: "",
+    inspiration: "",
+    image: null as File | null,
   });
 
-  // ✅ Add artwork
-  const handleAdd = () => {
-    if (!form.title || !form.image || !form.type)
-      return alert("Please add at least title, image, and type");
+  // Fetch messages + artworks
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [msgRes, artRes] = await Promise.all([
+          fetch("/api/messages"),
+          fetch("/api/gallery"),
+        ]);
 
-    const newUID = generateUID(form.type, artworks.length);
-    const newArt = { uid: newUID, ...form };
+        const [msgs, arts] = await Promise.all([
+          msgRes.json(),
+          artRes.json(),
+        ]);
 
-    setArtworks([...artworks, newArt]);
-    setForm({
-      title: "",
-      price: "",
-      state: "Available",
-      message: "",
-      image: "",
-      type: "pt",
-      series: "",
-    });
-  };
-
-  // ✅ Delete artwork
-  const handleDelete = (uid: string) => {
-    setArtworks(artworks.filter((a) => a.uid !== uid));
-  };
-
-  // ✅ Handle file upload (for preview)
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setForm({ ...form, image: event.target?.result as string });
+        if (Array.isArray(msgs)) setMessages(msgs);
+        if (Array.isArray(arts)) {
+          setArtworks(arts);
+          const maxNum = getMaxNumber(arts);
+          setNextNumber(String(maxNum + 1).padStart(3, "0"));
+        }
+      } catch (err) {
+        console.error(err);
+      }
     };
-    reader.readAsDataURL(file);
+    fetchData();
+  }, []);
+
+  // Extract max number from existing artworks
+  const getMaxNumber = (data: Artwork[]) => {
+    let max = 0;
+    data.forEach((item) => {
+      const match = item.uid?.match(/-(\d{3})$/);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > max) max = num;
+      }
+    });
+    return max;
+  };
+
+  // Input + textarea + select handler
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Image selector + preview
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setForm((prev) => ({ ...prev, image: file }));
+    if (file) setPreviewUrl(URL.createObjectURL(file));
+    else setPreviewUrl(null);
+  };
+
+  // UID generator
+  const generateUID = () => {
+    const year = new Date().getFullYear().toString().slice(-2);
+    return `${form.artist}-${form.typeCode}-${year}-${nextNumber}`;
+  };
+
+  // Upload new artwork
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const uid = generateUID();
+    const imageUrl = previewUrl || "/images/default.jpg";
+
+    const newArtwork: Artwork = {
+      src: imageUrl,
+      title: form.title,
+      uid,
+      price: form.price,
+      status: form.status,
+      state: form.state,
+      materials: form.materials,
+      duration: form.duration,
+      type: form.type,
+      inspiration: form.inspiration,
+    };
+
+    try {
+      const res = await fetch("/api/gallery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newArtwork),
+      });
+
+      if (res.ok) {
+        const savedArt = await res.json();
+        const updated = [savedArt, ...artworks];
+        setArtworks(updated);
+
+        const newNum = String(getMaxNumber(updated) + 1).padStart(3, "0");
+        setNextNumber(newNum);
+        setForm({
+          title: "",
+          artist: "bt",
+          typeCode: "pt",
+          price: "",
+          status: "Available",
+          state: "In Progress",
+          materials: "",
+          duration: "",
+          type: "",
+          inspiration: "",
+          image: null,
+        });
+        setPreviewUrl(null);
+        alert("✅ Artwork uploaded successfully!");
+      } else {
+        alert("❌ Failed to upload artwork.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error uploading artwork.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete artwork
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this artwork?")) return;
+    await fetch(`/api/gallery?id=${id}`, { method: "DELETE" });
+    setArtworks((prev) => prev.filter((a) => a._id !== id));
   };
 
   return (
-    <div className="min-h-screen bg-white py-12 px-6 sm:px-12 lg:px-24">
-      <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-4xl font-bold font-playfair-display mb-3">
-          Manage Gallery
-        </h1>
-        <p className="text-gray-600 mb-10">
-          Add, preview, or remove artworks from your Battuk Arts collection.
-        </p>
-      </div>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold mb-8 text-center text-gray-900 font-playfair-display">
+        Admin Dashboard
+      </h1>
 
-      {/* Add Artwork Form */}
-      <div className="max-w-4xl mx-auto bg-gray-50 p-8 rounded-2xl shadow-md mb-12">
-        <h2 className="text-2xl font-semibold mb-6 text-center">Add Artwork</h2>
+      {/* ===== Upload Artwork Section ===== */}
+      <section className="bg-white p-6 rounded-2xl shadow-lg mb-10 border border-gray-200 max-w-4xl mx-auto">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900">Upload Artwork</h2>
 
-        <div className="grid md:grid-cols-2 gap-5">
-          <div className="flex flex-col">
-            <label className="font-medium mb-1 text-sm text-gray-700">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          <div>
+            <label htmlFor="title" className="block mb-1 font-medium text-gray-900">
               Title
             </label>
             <input
-              type="text"
-              placeholder="e.g. Sunset Dreams"
+              id="title"
+              name="title"
               value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              onChange={handleChange}
+              required
+              className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
             />
           </div>
 
-          <div className="flex flex-col">
-            <label className="font-medium mb-1 text-sm text-gray-700">
-              Price (KES)
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. 5000"
-              value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value })}
-              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="font-medium mb-1 text-sm text-gray-700">
-              Availability
+          <div>
+            <label htmlFor="artist" className="block mb-1 font-medium text-gray-900">
+              Artist
             </label>
             <select
-              value={form.state}
-              onChange={(e) => setForm({ ...form, state: e.target.value })}
-              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              id="artist"
+              name="artist"
+              value={form.artist}
+              onChange={handleChange}
+              className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
             >
-              <option>Available</option>
-              <option>Sold</option>
+              <option value="bt">Batuk</option>
             </select>
           </div>
 
-          <div className="flex flex-col">
-            <label className="font-medium mb-1 text-sm text-gray-700">
+          <div>
+            <label htmlFor="typeCode" className="block mb-1 font-medium text-gray-900">
               Type
             </label>
             <select
-              value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value })}
-              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              id="typeCode"
+              name="typeCode"
+              value={form.typeCode}
+              onChange={handleChange}
+              className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
             >
               <option value="pt">Painting</option>
               <option value="dr">Drawing</option>
@@ -130,110 +238,157 @@ export default function ArtGalleryManager() {
             </select>
           </div>
 
-          <div className="flex flex-col md:col-span-1">
-            <label className="font-medium mb-1 text-sm text-gray-700">
-              Series (optional)
+          <div>
+            <label htmlFor="price" className="block mb-1 font-medium text-gray-900">
+              Price
             </label>
             <input
-              type="text"
-              placeholder="e.g. Nature Collection"
-              value={form.series}
-              onChange={(e) => setForm({ ...form, series: e.target.value })}
-              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              id="price"
+              name="price"
+              type="number"
+              value={form.price}
+              onChange={handleChange}
+              required
+              className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
             />
           </div>
 
-          <div className="flex flex-col md:col-span-1">
-            <label className="font-medium mb-1 text-sm text-gray-700">
-              Upload Image
+          <div className="col-span-full">
+            <label htmlFor="image" className="block mb-1 font-medium text-gray-900">
+              Select Artwork Image
             </label>
             <input
+              id="image"
+              name="image"
               type="file"
               accept="image/*"
-              onChange={handleFileUpload}
-              className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              onChange={handleFileChange}
+              className="w-full bg-white text-gray-900"
+            />
+            {previewUrl && (
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="mt-3 rounded-lg shadow-md w-full h-56 object-cover"
+              />
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="materials" className="block mb-1 font-medium text-gray-900">
+              Materials
+            </label>
+            <input
+              id="materials"
+              name="materials"
+              value={form.materials}
+              onChange={handleChange}
+              className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
             />
           </div>
-        </div>
 
-        {form.image && (
-          <div className="mt-6 flex justify-center">
-            <Image
-              src={form.image}
-              alt="Preview"
-              width={350}
-              height={250}
-              className="rounded-xl shadow-md object-cover"
+          <div>
+            <label htmlFor="duration" className="block mb-1 font-medium text-gray-900">
+              Duration
+            </label>
+            <input
+              id="duration"
+              name="duration"
+              value={form.duration}
+              onChange={handleChange}
+              className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
             />
           </div>
-        )}
 
-        <div className="flex flex-col mt-6">
-          <label className="font-medium mb-1 text-sm text-gray-700">
-            Message / Description
-          </label>
-          <textarea
-            placeholder="Describe your artwork or share its story..."
-            value={form.message}
-            onChange={(e) => setForm({ ...form, message: e.target.value })}
-            className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-black w-full"
-            rows={3}
-          ></textarea>
-        </div>
+          <div className="col-span-full">
+            <label htmlFor="inspiration" className="block mb-1 font-medium text-gray-900">
+              Inspiration
+            </label>
+            <textarea
+              id="inspiration"
+              name="inspiration"
+              value={form.inspiration}
+              onChange={handleChange}
+              className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
+              rows={3}
+            />
+          </div>
 
-        <div className="text-center mt-6">
+          <div className="col-span-full text-gray-900 text-sm">
+            <strong>Generated UID:</strong> {generateUID()}
+          </div>
+
           <button
-            onClick={handleAdd}
-            className="px-8 py-3 bg-black text-white rounded-md font-medium hover:bg-gray-800 transition"
+            disabled={loading}
+            className="col-span-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition"
           >
-            Add Artwork
+            {loading ? "Uploading..." : "Upload Artwork"}
           </button>
-        </div>
-      </div>
+        </form>
+      </section>
 
-      {/* Artwork List */}
-      <div className="max-w-5xl mx-auto grid sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {artworks.map((art) => (
-          <div
-            key={art.uid}
-            className="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden hover:shadow-md transition"
-          >
-            <Image
-              src={art.image}
-              alt={art.title}
-              width={500}
-              height={400}
-              className="object-cover w-full h-60"
-            />
-            <div className="p-4 text-center">
-              <h3 className="text-lg font-semibold mb-1">{art.title}</h3>
-              <p className="text-sm text-gray-600">
-                {art.price || "Undisclosed"}
-              </p>
-              <p className="text-xs text-gray-400">UID: {art.uid}</p>
-              {art.series && (
-                <p className="text-xs text-blue-500">Series: {art.series}</p>
-              )}
-              <p
-                className={`text-xs mt-1 ${
-                  art.state === "Sold" ? "text-red-500" : "text-green-600"
-                }`}
+      {/* ===== Manage Artworks ===== */}
+      <section className="bg-white p-6 rounded-2xl shadow-lg mb-10 border border-gray-200">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900">Manage Artworks</h2>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.isArray(artworks) && artworks.length > 0 ? (
+            artworks.map((art) => (
+              <div
+                key={art._id}
+                className="border rounded-xl overflow-hidden shadow-md bg-gray-50"
               >
-                {art.state}
-              </p>
-              {art.message && (
-                <p className="text-sm text-gray-700 mt-2">{art.message}</p>
-              )}
-              <button
-                onClick={() => handleDelete(art.uid)}
-                className="mt-3 px-4 py-2 bg-red-500 text-white text-sm rounded-md hover:bg-red-600 transition"
+                <img
+                  src={art.src}
+                  alt={art.title}
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-3">
+                  <h3 className="font-semibold text-gray-900">{art.title}</h3>
+                  <p className="text-sm text-gray-900">{art.price}</p>
+                  <p className="text-xs text-gray-700">{art.status}</p>
+                  <p className="text-xs text-gray-700">{art.uid}</p>
+                  <button
+                    onClick={() => handleDelete(art._id!)}
+                    className="mt-2 text-sm text-red-600 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-700">No artworks found.</p>
+          )}
+        </div>
+      </section>
+
+      {/* ===== Messages Section ===== */}
+      <section className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900">Contact Messages</h2>
+
+        <div className="space-y-4">
+          {Array.isArray(messages) && messages.length > 0 ? (
+            messages.map((msg) => (
+              <div
+                key={msg._id}
+                className="border rounded-xl p-4 bg-gray-50 shadow-sm"
               >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+                <h3 className="font-semibold text-gray-900">
+                  {msg.name} —{" "}
+                  <span className="text-sm text-gray-700">{msg.email}</span>
+                </h3>
+                <p className="text-gray-900 mt-1">{msg.message}</p>
+                <p className="text-xs text-gray-700 mt-2">
+                  {new Date(msg.createdAt).toLocaleString()}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-700">No messages yet.</p>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

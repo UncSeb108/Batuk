@@ -20,8 +20,9 @@ export default function Navbar() {
     { label: "Shop", href: "/shop" },
     { label: "Cart", href: "/cart" },
     { label: "Login", href: "/login" },
-    { label: "Register", href: "/register" }, 
+    { label: "Register", href: "/register" },
     { label: "Admin", href: "/admin" },
+    
   ];
 
   useEffect(() => {
