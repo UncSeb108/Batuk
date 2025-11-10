@@ -31,7 +31,7 @@ Create a `.env.local` file in the project root and add the following variables:
 
 ```bash
 # --- Database Connection ---
-MONGODB_URI=mongodb+srv://Batuk:Batukpassword@cluster0.yaejql8.mongodb.net/?appName=Cluster0
+MONGODB_URI=mongodb+srv://<name>:<password>@cluster0.yaejql8.mongodb.net/?appName=Cluster0
 
 # --- (Optional) Cloudinary / Image Upload Setup ---
 # CLOUDINARY_CLOUD_NAME=your_cloud_name
