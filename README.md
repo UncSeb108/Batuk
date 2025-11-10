@@ -164,6 +164,3 @@ This project is licensed under the MIT License.
 ```
 
 ---
-
-Would you like me to include a short **Admin Upload Guide** section too (with step-by-step on how to upload a new artwork via `/admin`)?
-```
