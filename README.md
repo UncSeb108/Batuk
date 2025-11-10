@@ -1,8 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Perfect 👍 — here’s an updated **README.md** for your project that includes all your environment setup details, MongoDB connection, and instructions for running the app locally and in production.
 
-## Getting Started
+---
 
-First, run the development server:
+````markdown
+# 🎨 Batuk Art Gallery
+
+A full-stack Next.js project for managing and showcasing artworks — complete with real-time gallery updates, artwork uploads, and admin management tools. Built using **Next.js 14**, **MongoDB**, and **Mongoose**.
+
+---
+
+## 🚀 Getting Started
+
+### 1️⃣ Clone the Repository
+```bash
+git clone <your-repo-url>
+cd Batuk
+````
+
+### 2️⃣ Install Dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+### 3️⃣ Environment Setup
+
+Create a `.env.local` file in the project root and add the following variables:
+
+```bash
+# --- Database Connection ---
+MONGODB_URI=mongodb+srv://Batuk:Batukpassword@cluster0.yaejql8.mongodb.net/?appName=Cluster0
+
+# --- (Optional) Cloudinary / Image Upload Setup ---
+# CLOUDINARY_CLOUD_NAME=your_cloud_name
+# CLOUDINARY_API_KEY=your_api_key
+# CLOUDINARY_API_SECRET=your_api_secret
+
+# --- (Optional) Deployment Config ---
+# NEXT_PUBLIC_SITE_URL=https://your-deployment-url.vercel.app
+```
+
+🧠 **Note:**
+
+* Ensure MongoDB Atlas access is enabled for your IP or set to `0.0.0.0/0` (for development only).
+* Cloudinary config is optional but recommended if you want to upload real images from the admin dashboard.
+
+---
+
+## 🧩 Project Structure
+
+```
+/src
+ ├── app/
+ │   ├── api/
+ │   │   ├── gallery/route.ts      # Handles CRUD for artworks
+ │   │   ├── messages/route.ts     # Handles contact/message submissions
+ │   ├── gallery/                  # Public gallery page with filters
+ │   ├── shop/                     # Shop page (cart + product display)
+ │   ├── admin/                    # Admin page for uploading artworks
+ │   ├── context/CartContext.tsx   # Shopping cart context provider
+ │   ├── globals.css               # Global styles
+ │   └── layout.tsx / page.tsx     # App entrypoints
+ ├── backend/
+ │   ├── db/connect.ts             # Mongoose connection handler
+ │   ├── models/Artwork.ts         # Artwork schema
+ │   ├── models/Message.ts         # Message schema
+ │   └── routes/                   # API route logic (gallery, messages)
+ ├── public/
+ │   ├── images/                   # Static artwork images
+ │   ├── data/artworks.json        # Initial artwork data (optional)
+ │   └── assets/                   # SVGs, icons, etc.
+ └── .env.local                    # Environment variables
+```
+
+---
+
+## 🖥️ Development
+
+Run the development server:
 
 ```bash
 npm run dev
@@ -14,23 +91,79 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open **[http://localhost:3000](http://localhost:3000)** with your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Changes are hot-reloaded automatically.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🧪 Building for Production
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+npm start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+If your system has low memory (≤ 2GB) and `next build` crashes:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+rm -rf .next node_modules
+npm install
+NODE_OPTIONS="--max-old-space-size=1024" npm run build
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧰 Features So Far
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+✅ MongoDB integration with Mongoose
+✅ Real-time Gallery updates using SWR
+✅ Artwork upload (Admin dashboard)
+✅ Cart & Shop pages
+✅ Filtered gallery (Available, Sold, Exhibition)
+✅ Message form (contact route)
+✅ Image rendering with Next/Image
+
+---
+
+## 🧱 Deployment
+
+You can deploy the app easily on **Vercel**:
+
+```bash
+vercel
+```
+
+Or build for any Node.js host using:
+
+```bash
+npm run build
+npm start
+```
+
+Ensure that your `.env.local` variables are also set in your deployment environment.
+
+---
+
+## 👨‍💻 Updated by 
+
+**Paul Maina Ngaruiya**
+[GitHub](https://github.com/mainangaruiya) • [Portfolio](https://jnrdev-paulmaina.netlify.app)
+Full Stack Developer | Cybersecurity Enthusiast | Artist Platform Builder
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License.
+
+---
+
+🖤 *“Art meets code — empowering creativity through technology.”*
+
+```
+
+---
+
+Would you like me to include a short **Admin Upload Guide** section too (with step-by-step on how to upload a new artwork via `/admin`)?
+```
