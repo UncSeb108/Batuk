@@ -44,34 +44,44 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Image file is required" }, { status: 400 });
     }
 
-    // Convert File -> Base64 Data URI for Cloudinary
+    // Convert File -> Buffer
     const arrayBuffer = await file.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
-    const dataUri = `data:${file.type};base64,${base64}`;
+    const buffer = Buffer.from(arrayBuffer);
 
-    // Upload to Cloudinary
-    const uploaded = await cloudinary.uploader.upload(dataUri, {
-      folder: "batuk_gallery",
-      public_id: `${Date.now()}_${uid}`,
-    });
+    // Upload to Cloudinary using buffer
+    const uploaded = await cloudinary.uploader.upload_stream(
+      {
+        folder: "batuk_gallery",
+        public_id: `${Date.now()}_${uid}`,
+      },
+      async (error, result) => {
+        if (error) {
+          console.error("Cloudinary upload error:", error);
+          return NextResponse.json({ error: "Cloudinary upload failed" }, { status: 500 });
+        }
 
-    // Save record in MongoDB
-    const newArtwork = await Gallery.create({
-      src: uploaded.secure_url,
-      title,
-      artist,
-      typeCode,
-      price,
-      status,
-      state,
-      materials,
-      duration,
-      type,
-      inspiration,
-      uid,
-    });
+        // Save record in MongoDB
+        const newArtwork = await Gallery.create({
+          src: result?.secure_url,
+          title,
+          artist,
+          typeCode,
+          price,
+          status,
+          state,
+          materials,
+          duration,
+          type,
+          inspiration,
+          uid,
+        });
 
-    return NextResponse.json(newArtwork, { status: 201 });
+        return NextResponse.json(newArtwork, { status: 201 });
+      }
+    );
+
+    // Write the buffer to the upload stream
+    uploaded.end(buffer);
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to upload image" }, { status: 500 });
