@@ -65,16 +65,16 @@ export default function GallerySection() {
 
   // Apply filters
   const filteredArtworks = safeArtworks.filter((art) => {
-    const matchType = typeFilter === "All" || art.type === typeFilter;
-    const matchStatus = statusFilter === "All" || art.status === statusFilter;
-    const matchState = stateFilter === "All" || art.state === stateFilter;
+    const matchType = typeFilter === "All" || (art.type || "") === typeFilter;
+    const matchStatus = statusFilter === "All" || (art.status || "") === statusFilter;
+    const matchState = stateFilter === "All" || (art.state || "") === stateFilter;
     return matchType && matchStatus && matchState;
   });
 
   // Use default options, but merge with any dynamic options from API data
-  const types = [...new Set([...DEFAULT_TYPES, ...safeArtworks.map((a) => a.type).filter(Boolean)])];
-  const statuses = [...new Set([...DEFAULT_STATUSES, ...safeArtworks.map((a) => a.status).filter(Boolean)])];
-  const states = [...new Set([...DEFAULT_STATES, ...safeArtworks.map((a) => a.state).filter(Boolean)])];
+  const types = [...new Set([...DEFAULT_TYPES, ...safeArtworks.map((a) => a.type || "").filter(Boolean)])];
+  const statuses = [...new Set([...DEFAULT_STATUSES, ...safeArtworks.map((a) => a.status || "").filter(Boolean)])];
+  const states = [...new Set([...DEFAULT_STATES, ...safeArtworks.map((a) => a.state || "").filter(Boolean)])];
 
   return (
     <div className="min-h-screen w-full px-6 py-20 overflow-y-auto bg-[#ffffff]">
@@ -84,6 +84,7 @@ export default function GallerySection() {
       
       {/* Filters - Always show default options */}
       <div className="flex flex-col lg:flex-row flex-wrap items-start justify-center gap-12 mb-16 font-nunito-sans">
+        {/* Type Filter */}
         <div className="flex flex-col items-center">
           <span className="text-gray-800 font-semibold mb-3 text-base tracking-wide">
             Filter by Type
@@ -112,6 +113,7 @@ export default function GallerySection() {
           </div>
         </div>
 
+        {/* Status Filter */}
         <div className="flex flex-col items-center">
           <span className="text-gray-800 font-semibold mb-3 text-base tracking-wide">
             Filter by Status
@@ -140,6 +142,7 @@ export default function GallerySection() {
           </div>
         </div>
 
+        {/* State Filter */}
         <div className="flex flex-col items-center">
           <span className="text-gray-800 font-semibold mb-3 text-base tracking-wide">
             Filter by State
@@ -215,7 +218,7 @@ export default function GallerySection() {
                   {item.title}
                 </h3>
                 <p className="text-xs text-gray-200">
-                  {item.type} · {item.price}
+                  {(item.type || "")} · {item.price}
                 </p>
               </div>
             </motion.div>
@@ -281,18 +284,16 @@ export default function GallerySection() {
                 </p>
 
                 <p className="text-black text-lg">
-                  <strong>Type:</strong> {filteredArtworks[selected].type}
+                  <strong>Type:</strong> {filteredArtworks[selected].type || ""}
                 </p>
                 <p className="text-black text-lg">
-                  <strong>Created in ~</strong>{" "}
-                  {filteredArtworks[selected].duration}
+                  <strong>Created in ~</strong> {filteredArtworks[selected].duration || ""}
                 </p>
                 <p className="text-black text-lg">
-                  <strong>Materials:</strong>{" "}
-                  {filteredArtworks[selected].materials}
+                  <strong>Materials:</strong> {filteredArtworks[selected].materials || ""}
                 </p>
                 <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                  {filteredArtworks[selected].inspiration}
+                  {filteredArtworks[selected].inspiration || ""}
                 </p>
 
                 <p className="text-xl font-bold text-black mb-6">

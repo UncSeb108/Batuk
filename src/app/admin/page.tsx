@@ -28,7 +28,6 @@ export default function AdminPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [nextNumber, setNextNumber] = useState("001");
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
@@ -45,7 +44,6 @@ export default function AdminPage() {
     image: null as File | null,
   });
 
-  // Fetch messages + artworks
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,12 +51,7 @@ export default function AdminPage() {
           fetch("/api/messages"),
           fetch("/api/gallery"),
         ]);
-
-        const [msgs, arts] = await Promise.all([
-          msgRes.json(),
-          artRes.json(),
-        ]);
-
+        const [msgs, arts] = await Promise.all([msgRes.json(), artRes.json()]);
         if (Array.isArray(msgs)) setMessages(msgs);
         if (Array.isArray(arts)) {
           setArtworks(arts);
@@ -72,7 +65,6 @@ export default function AdminPage() {
     fetchData();
   }, []);
 
-  // Extract max number from existing artworks
   const getMaxNumber = (data: Artwork[]) => {
     let max = 0;
     data.forEach((item) => {
@@ -85,63 +77,53 @@ export default function AdminPage() {
     return max;
   };
 
-  // Input + textarea + select handler
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Image selector + preview
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setForm((prev) => ({ ...prev, image: file }));
-    if (file) setPreviewUrl(URL.createObjectURL(file));
-    else setPreviewUrl(null);
   };
 
-  // UID generator
   const generateUID = () => {
     const year = new Date().getFullYear().toString().slice(-2);
     return `${form.artist}-${form.typeCode}-${year}-${nextNumber}`;
   };
 
-  // Upload new artwork
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.image) return alert("Please select an image!");
     setLoading(true);
 
     const uid = generateUID();
-    const imageUrl = previewUrl || "/images/default.jpg";
-
-    const newArtwork: Artwork = {
-      src: imageUrl,
-      title: form.title,
-      uid,
-      price: form.price,
-      status: form.status,
-      state: form.state,
-      materials: form.materials,
-      duration: form.duration,
-      type: form.type,
-      inspiration: form.inspiration,
-    };
+    const data = new FormData();
+    data.append("title", form.title);
+    data.append("artist", form.artist);
+    data.append("typeCode", form.typeCode);
+    data.append("price", form.price);
+    data.append("status", form.status);
+    data.append("state", form.state);
+    data.append("materials", form.materials);
+    data.append("duration", form.duration);
+    data.append("type", form.type);
+    data.append("inspiration", form.inspiration);
+    data.append("uid", uid);
+    data.append("image", form.image);
 
     try {
       const res = await fetch("/api/gallery", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newArtwork),
+        body: data,
       });
 
       if (res.ok) {
         const savedArt = await res.json();
         const updated = [savedArt, ...artworks];
         setArtworks(updated);
-
         const newNum = String(getMaxNumber(updated) + 1).padStart(3, "0");
         setNextNumber(newNum);
         setForm({
@@ -157,7 +139,6 @@ export default function AdminPage() {
           inspiration: "",
           image: null,
         });
-        setPreviewUrl(null);
         alert("✅ Artwork uploaded successfully!");
       } else {
         alert("❌ Failed to upload artwork.");
@@ -170,7 +151,6 @@ export default function AdminPage() {
     }
   };
 
-  // Delete artwork
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this artwork?")) return;
     await fetch(`/api/gallery?id=${id}`, { method: "DELETE" });
@@ -183,18 +163,13 @@ export default function AdminPage() {
         Admin Dashboard
       </h1>
 
-      {/* ===== Upload Artwork Section ===== */}
+      {/* Upload Artwork */}
       <section className="bg-white p-6 rounded-2xl shadow-lg mb-10 border border-gray-200 max-w-4xl mx-auto">
         <h2 className="text-xl font-semibold mb-4 text-gray-900">Upload Artwork</h2>
-
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
-        >
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Title */}
           <div>
-            <label htmlFor="title" className="block mb-1 font-medium text-gray-900">
-              Title
-            </label>
+            <label htmlFor="title" className="block mb-1 font-medium text-gray-900">Title</label>
             <input
               id="title"
               name="title"
@@ -204,11 +179,9 @@ export default function AdminPage() {
               className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
             />
           </div>
-
+          {/* Artist */}
           <div>
-            <label htmlFor="artist" className="block mb-1 font-medium text-gray-900">
-              Artist
-            </label>
+            <label htmlFor="artist" className="block mb-1 font-medium text-gray-900">Artist</label>
             <select
               id="artist"
               name="artist"
@@ -219,11 +192,9 @@ export default function AdminPage() {
               <option value="bt">Batuk</option>
             </select>
           </div>
-
+          {/* Type Code */}
           <div>
-            <label htmlFor="typeCode" className="block mb-1 font-medium text-gray-900">
-              Type
-            </label>
+            <label htmlFor="typeCode" className="block mb-1 font-medium text-gray-900">Type</label>
             <select
               id="typeCode"
               name="typeCode"
@@ -237,11 +208,9 @@ export default function AdminPage() {
               <option value="sp">Screen Print</option>
             </select>
           </div>
-
+          {/* Price */}
           <div>
-            <label htmlFor="price" className="block mb-1 font-medium text-gray-900">
-              Price
-            </label>
+            <label htmlFor="price" className="block mb-1 font-medium text-gray-900">Price</label>
             <input
               id="price"
               name="price"
@@ -252,11 +221,9 @@ export default function AdminPage() {
               className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
             />
           </div>
-
+          {/* Image */}
           <div className="col-span-full">
-            <label htmlFor="image" className="block mb-1 font-medium text-gray-900">
-              Select Artwork Image
-            </label>
+            <label htmlFor="image" className="block mb-1 font-medium text-gray-900">Select Artwork Image</label>
             <input
               id="image"
               name="image"
@@ -265,19 +232,10 @@ export default function AdminPage() {
               onChange={handleFileChange}
               className="w-full bg-white text-gray-900"
             />
-            {previewUrl && (
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="mt-3 rounded-lg shadow-md w-full h-56 object-cover"
-              />
-            )}
           </div>
-
+          {/* Materials */}
           <div>
-            <label htmlFor="materials" className="block mb-1 font-medium text-gray-900">
-              Materials
-            </label>
+            <label htmlFor="materials" className="block mb-1 font-medium text-gray-900">Materials</label>
             <input
               id="materials"
               name="materials"
@@ -286,11 +244,9 @@ export default function AdminPage() {
               className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
             />
           </div>
-
+          {/* Duration */}
           <div>
-            <label htmlFor="duration" className="block mb-1 font-medium text-gray-900">
-              Duration
-            </label>
+            <label htmlFor="duration" className="block mb-1 font-medium text-gray-900">Duration</label>
             <input
               id="duration"
               name="duration"
@@ -299,11 +255,9 @@ export default function AdminPage() {
               className="border p-3 rounded bg-white text-gray-900 focus:ring-2 focus:ring-black w-full"
             />
           </div>
-
+          {/* Inspiration */}
           <div className="col-span-full">
-            <label htmlFor="inspiration" className="block mb-1 font-medium text-gray-900">
-              Inspiration
-            </label>
+            <label htmlFor="inspiration" className="block mb-1 font-medium text-gray-900">Inspiration</label>
             <textarea
               id="inspiration"
               name="inspiration"
@@ -327,22 +281,14 @@ export default function AdminPage() {
         </form>
       </section>
 
-      {/* ===== Manage Artworks ===== */}
+      {/* Manage Artworks */}
       <section className="bg-white p-6 rounded-2xl shadow-lg mb-10 border border-gray-200">
         <h2 className="text-xl font-semibold mb-4 text-gray-900">Manage Artworks</h2>
-
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.isArray(artworks) && artworks.length > 0 ? (
+          {artworks.length > 0 ? (
             artworks.map((art) => (
-              <div
-                key={art._id}
-                className="border rounded-xl overflow-hidden shadow-md bg-gray-50"
-              >
-                <img
-                  src={art.src}
-                  alt={art.title}
-                  className="w-full h-40 object-cover"
-                />
+              <div key={art._id} className="border rounded-xl overflow-hidden shadow-md bg-gray-50">
+                <img src={art.src} alt={art.title} className="w-full h-40 object-cover" />
                 <div className="p-3">
                   <h3 className="font-semibold text-gray-900">{art.title}</h3>
                   <p className="text-sm text-gray-900">{art.price}</p>
@@ -363,20 +309,15 @@ export default function AdminPage() {
         </div>
       </section>
 
-      {/* ===== Messages Section ===== */}
+      {/* Messages */}
       <section className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
         <h2 className="text-xl font-semibold mb-4 text-gray-900">Contact Messages</h2>
-
         <div className="space-y-4">
-          {Array.isArray(messages) && messages.length > 0 ? (
+          {messages.length > 0 ? (
             messages.map((msg) => (
-              <div
-                key={msg._id}
-                className="border rounded-xl p-4 bg-gray-50 shadow-sm"
-              >
+              <div key={msg._id} className="border rounded-xl p-4 bg-gray-50 shadow-sm">
                 <h3 className="font-semibold text-gray-900">
-                  {msg.name} —{" "}
-                  <span className="text-sm text-gray-700">{msg.email}</span>
+                  {msg.name} — <span className="text-sm text-gray-700">{msg.email}</span>
                 </h3>
                 <p className="text-gray-900 mt-1">{msg.message}</p>
                 <p className="text-xs text-gray-700 mt-2">
