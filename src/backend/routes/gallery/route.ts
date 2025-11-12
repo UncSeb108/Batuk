@@ -4,13 +4,14 @@ import Gallery from "@/src/backend/models/Gallery";
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 
-// Cloudinary config from env
+// --- Cloudinary Config ---
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// -------------------- GET --------------------
 export async function GET() {
   try {
     await connectDB();
@@ -22,6 +23,7 @@ export async function GET() {
   }
 }
 
+// -------------------- POST --------------------
 export async function POST(req: Request) {
   try {
     await connectDB();
@@ -48,51 +50,53 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload to Cloudinary using buffer
-    const uploaded = await cloudinary.uploader.upload_stream(
-      {
-        folder: "batuk_gallery",
-        public_id: `${Date.now()}_${uid}`,
-      },
-      async (error, result) => {
-        if (error) {
-          console.error("Cloudinary upload error:", error);
-          return NextResponse.json({ error: "Cloudinary upload failed" }, { status: 500 });
+    // Upload to Cloudinary using Promise wrapper
+    const result = await new Promise<any>((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: "batuk_gallery",
+          public_id: `${Date.now()}_${uid}`,
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
         }
+      );
+      uploadStream.end(buffer);
+    });
 
-        // Save record in MongoDB
-        const newArtwork = await Gallery.create({
-          src: result?.secure_url,
-          title,
-          artist,
-          typeCode,
-          price,
-          status,
-          state,
-          materials,
-          duration,
-          type,
-          inspiration,
-          uid,
-        });
+    // Save metadata in MongoDB
+    const newArtwork = await Gallery.create({
+      src: result.secure_url,
+      title,
+      artist,
+      typeCode,
+      price,
+      status,
+      state,
+      materials,
+      duration,
+      type,
+      inspiration,
+      uid,
+    });
 
-        return NextResponse.json(newArtwork, { status: 201 });
-      }
-    );
-
-    // Write the buffer to the upload stream
-    uploaded.end(buffer);
+    return NextResponse.json(newArtwork, { status: 201 });
   } catch (err) {
-    console.error(err);
+    console.error("Upload failed:", err);
     return NextResponse.json({ error: "Failed to upload image" }, { status: 500 });
   }
 }
 
+// -------------------- DELETE --------------------
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
-    if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
+
+    if (!id) {
+      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    }
 
     await connectDB();
     await Gallery.findByIdAndDelete(id);
