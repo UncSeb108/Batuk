@@ -1,24 +1,97 @@
 "use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import Image from "next/image";
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export default function CartPage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const { cart, removeFromCart } = useCart();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/user");
+        const data = await res.json();
+        
+        if (data.loggedIn) {
+          setUser(data.user);
+        } else {
+          router.push("/login");
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        router.push("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/user/logout", { method: "POST" });
+    setUser(null);
+    router.push("/login");
+  };
 
   const total = cart.reduce(
     (sum, item) => sum + Number(item.price.replace(/[^0-9.]/g, "")),
     0
   );
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-100 to-gray-200">
+        <div className="text-xl font-nunito-sans">Loading your cart...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="px-6 py-24 min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 font-nunito-sans">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-extrabold mb-10 text-black tracking-tight font-playfair-display">
-          Shopping Cart
-        </h1>
+        {/* Header with user info */}
+        <div className="flex justify-between items-center mb-10">
+          <h1 className="text-4xl font-extrabold text-black tracking-tight font-playfair-display">
+            Shopping Cart
+          </h1>
+          <div className="flex items-center gap-4">
+            <span className="text-gray-700 font-nunito-sans">
+              Welcome, {user.name}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition font-medium text-sm"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
 
         {cart.length === 0 ? (
-          <p className="text-lg text-gray-600">Your cart is empty.</p>
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-600 mb-6">Your cart is empty.</p>
+            <button
+              onClick={() => router.push("/gallery")}
+              className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition font-medium"
+            >
+              Browse Gallery
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             <div className="md:col-span-3 space-y-6">
@@ -39,8 +112,7 @@ export default function CartPage() {
 
                   <div className="flex-1 pl-4">
                     <p className="text-xs font-nunito-sans text-gray-500">
-                      {" "}
-                      {item.uid}{" "}
+                      {item.uid}
                     </p>
                     <h3 className="font-semibold text-lg text-gray-900 font-playfair-display">
                       {item.title}

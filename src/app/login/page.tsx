@@ -51,7 +51,7 @@ export default function LoginPage() {
       }
 
       // Redirect to dashboard or home page
-      router.push("/dashboard");
+      router.push("/shop");
       
     } catch (err: any) {
       console.error("Login error:", err);

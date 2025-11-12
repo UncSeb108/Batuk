@@ -1,48 +1,66 @@
-import mongoose, { Document, Schema, Model } from "mongoose";
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-export interface IUser extends Document {
-  name: string;
-  email: string;
-  password: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const UserSchema: Schema = new Schema(
-  {
-    name: {
-      type: String,
-      required: [true, "Name is required"],
-      trim: true,
-      maxlength: [50, "Name cannot be more than 50 characters"],
-    },
-    email: {
-      type: String,
-      required: [true, "Email is required"],
-      unique: true,
-      lowercase: true,
-      trim: true,
-      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email"],
-    },
-    password: {
-      type: String,
-      required: [true, "Password is required"],
-      minlength: [6, "Password must be at least 6 characters"],
-    },
+const userSchema = new mongoose.Schema({
+  name: { 
+    type: String, 
+    required: [true, 'Name is required'], 
+    trim: true 
   },
-  {
-    timestamps: true,
+  email: { 
+    type: String, 
+    required: [true, 'Email is required'], 
+    unique: true, 
+    lowercase: true, 
+    trim: true 
+  },
+  password: { 
+    type: String, 
+    required: [true, 'Password is required'], 
+    minlength: 6 
   }
-);
+}, { 
+  timestamps: true 
+});
 
-// Remove password when converting to JSON
-UserSchema.methods.toJSON = function () {
-  const user = this.toObject();
-  delete user.password;
-  return user;
+// FIXED: Password hashing middleware
+userSchema.pre('save', async function(next) {
+  // Only hash the password if it has been modified (or is new)
+  if (!this.isModified('password')) return next();
+  
+  try {
+    console.log("🔐 HASHING PASSWORD...");
+    console.log("📝 ORIGINAL PASSWORD:", this.password);
+    
+    // Use 12 salt rounds (consistent with your current hashes)
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    
+    console.log("✅ PASSWORD HASHED SUCCESSFULLY");
+    console.log("📝 HASHED PASSWORD:", this.password);
+    next();
+  } catch (error: any) {
+    console.error("❌ PASSWORD HASHING ERROR:", error);
+    next(error);
+  }
+});
+
+// FIXED: Password comparison method
+userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+  try {
+    console.log("🔑 COMPARING:");
+    console.log("📝 CANDIDATE:", candidatePassword);
+    console.log("📝 STORED HASH:", this.password);
+    
+    const isMatch = await bcrypt.compare(candidatePassword, this.password);
+    console.log("🎯 COMPARE RESULT:", isMatch);
+    
+    return isMatch;
+  } catch (error) {
+    console.error("❌ COMPARE ERROR:", error);
+    return false;
+  }
 };
 
-// Check if model already exists to prevent OverwriteModelError
-const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
-
-export default User;
+// Check if model exists to prevent OverwriteModelError
+export default mongoose.models.User || mongoose.model('User', userSchema);
