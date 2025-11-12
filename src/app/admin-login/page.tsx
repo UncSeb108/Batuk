@@ -17,38 +17,29 @@ export default function AdminLoginPage() {
   setLoading(true);
 
   try {
-    console.log("Sending login request...");
-    
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
 
-    console.log("Response status:", res.status);
-    
     const data = await res.json();
-    console.log("Response data:", data);
 
     if (!res.ok) {
       setError(data.error || "Login failed");
       return;
     }
 
-    // ✅ SUCCESS - Try different redirect methods
-    console.log("Login successful, attempting redirect...");
-    
-    // Method 1: Force hard redirect (most reliable)
+    // ✅ Success - redirect to admin page
     window.location.href = "/admin";
     
   } catch (err) {
-    console.error("Login error:", err);
+    console.error(err);
     setError("Something went wrong. Try again.");
   } finally {
     setLoading(false);
   }
 };
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form
