@@ -1,3 +1,4 @@
+//src/backend/models/Message.ts
 import { connectDB } from "../../lib/mongodb";
 import Message from "../../models/Message";
 import { NextResponse } from "next/server";

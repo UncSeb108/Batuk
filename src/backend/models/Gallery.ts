@@ -6,8 +6,21 @@ const GallerySchema = new mongoose.Schema(
     title: { type: String, required: true },
     uid: { type: String, required: true, unique: true },
     price: { type: String, required: true },
-    status: { type: String, required: true },
-    state: { type: String, required: true },
+
+    // Updated fields with enums for filtering
+    status: { 
+      type: String, 
+      required: true, 
+      enum: ["Sold", "Exhibition", "Available"], 
+      default: "Available" 
+    },
+    state: { 
+      type: String, 
+      required: true, 
+      enum: ["Completed", "In Progress"], 
+      default: "In Progress" 
+    },
+
     materials: { type: String },
     duration: { type: String },
     type: { type: String },

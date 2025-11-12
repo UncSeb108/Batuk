@@ -11,15 +11,23 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// -------------------- GET --------------------
-export async function GET() {
+// -------------------- GET with filters --------------------
+export async function GET(req: Request) {
   try {
     await connectDB();
-    const images = await Gallery.find().sort({ createdAt: -1 });
-    return NextResponse.json(images);
+    const { searchParams } = new URL(req.url);
+    const status = searchParams.get("status"); // Sold, Exhibition, Available
+    const state = searchParams.get("state");   // Completed, In Progress
+
+    const filter: Record<string, string> = {};
+    if (status && status !== "All") filter.status = status;
+    if (state && state !== "All") filter.state = state;
+
+    const artworks = await Gallery.find(filter).sort({ createdAt: -1 });
+    return NextResponse.json(artworks);
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to fetch images" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch artworks" }, { status: 500 });
   }
 }
 
@@ -27,7 +35,6 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     await connectDB();
-
     const formData = await req.formData();
     const title = formData.get("title") as string;
     const artist = formData.get("artist") as string;
@@ -42,30 +49,19 @@ export async function POST(req: Request) {
     const uid = formData.get("uid") as string;
 
     const file = formData.get("image") as File | null;
-    if (!file) {
-      return NextResponse.json({ error: "Image file is required" }, { status: 400 });
-    }
+    if (!file) return NextResponse.json({ error: "Image required" }, { status: 400 });
 
-    // Convert File -> Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload to Cloudinary using Promise wrapper
     const result = await new Promise<any>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: "batuk_gallery",
-          public_id: `${Date.now()}_${uid}`,
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
+        { folder: "batuk_gallery", public_id: `${Date.now()}_${uid}` },
+        (error, result) => (error ? reject(error) : resolve(result))
       );
       uploadStream.end(buffer);
     });
 
-    // Save metadata in MongoDB
     const newArtwork = await Gallery.create({
       src: result.secure_url,
       title,
@@ -84,7 +80,7 @@ export async function POST(req: Request) {
     return NextResponse.json(newArtwork, { status: 201 });
   } catch (err) {
     console.error("Upload failed:", err);
-    return NextResponse.json({ error: "Failed to upload image" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to upload artwork" }, { status: 500 });
   }
 }
 
@@ -93,16 +89,44 @@ export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
-    }
+    if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
 
     await connectDB();
     await Gallery.findByIdAndDelete(id);
-    return NextResponse.json({ message: "Deleted successfully" }, { status: 200 });
+    return NextResponse.json({ message: "Deleted successfully" });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to delete image" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to delete artwork" }, { status: 500 });
+  }
+}
+// -------------------- PATCH --------------------
+// Update status or state of artwork
+export async function PATCH(req: Request) {
+  try {
+    await connectDB();
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id"); // Ensure ID comes from ?id=<art_id>
+    if (!id) {
+      return NextResponse.json({ error: "ID required" }, { status: 400 });
+    }
+
+    const body = await req.json(); // Expect: { status?: string, state?: string }
+
+    // Only update provided fields
+    const updateData: Record<string, string> = {};
+    if (body.status) updateData.status = body.status;
+    if (body.state) updateData.state = body.state;
+
+    const updatedArtwork = await Gallery.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (!updatedArtwork) {
+      return NextResponse.json({ error: "Artwork not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedArtwork);
+  } catch (err) {
+    console.error("Update failed:", err);
+    return NextResponse.json({ error: "Failed to update artwork" }, { status: 500 });
   }
 }
