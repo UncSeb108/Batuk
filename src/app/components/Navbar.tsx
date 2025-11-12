@@ -9,21 +9,45 @@ import { useCart } from "../context/CartContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
   const { cart } = useCart();
 
-  const navLinks = [
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const res = await fetch('/api/auth/check');
+        const data = await res.json();
+        setIsAdmin(data.loggedIn);
+      } catch (error) {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdmin();
+  }, []);
+
+  // Base nav links for all users
+  const baseNavLinks = [
     { label: "Home", href: "/home" },
     { label: "Gallery", href: "/gallery" },
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
     { label: "Shop", href: "/shop" },
     { label: "Cart", href: "/cart" },
-    { label: "Login", href: "/login" },
-    { label: "Register", href: "/register" },
-    { label: "Admin", href: "/admin" },
-    
   ];
+
+  // Auth links (show login/register OR admin based on auth status)
+  const authLinks = isAdmin 
+    ? [{ label: "Admin", href: "/admin" }]
+    : [
+        { label: "Login", href: "/login" },
+        { label: "Register", href: "/register" },
+      ];
+
+  // Combine all links
+  const navLinks = [...baseNavLinks, ...authLinks];
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
