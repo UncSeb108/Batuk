@@ -12,34 +12,42 @@ export default function AdminLoginPage() {
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+  try {
+    console.log("Sending login request...");
+    
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
 
-      const data = await res.json();
+    console.log("Response status:", res.status);
+    
+    const data = await res.json();
+    console.log("Response data:", data);
 
-      if (!res.ok) {
-        setError(data.error || "Login failed");
-        return;
-      }
-
-      // Success → reload page so middleware sees cookie
-      router.refresh(); // refresh Next.js state
-      router.push("/admin");
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong. Try again.");
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      setError(data.error || "Login failed");
+      return;
     }
-  };
+
+    // ✅ SUCCESS - Try different redirect methods
+    console.log("Login successful, attempting redirect...");
+    
+    // Method 1: Force hard redirect (most reliable)
+    window.location.href = "/admin";
+    
+  } catch (err) {
+    console.error("Login error:", err);
+    setError("Something went wrong. Try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
