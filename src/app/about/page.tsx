@@ -9,7 +9,7 @@ export default function AboutSection() {
       <div className="max-w-5xl grid md:grid-cols-2 gap-12 items-center">
         <div className="overflow-hidden rounded-xl">
           <Image
-            src="/batuk/0006.jpg"
+            src="/images/0016.jpg"
             alt="Artist"
             width={500}
             height={600}
