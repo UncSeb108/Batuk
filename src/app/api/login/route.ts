@@ -1,13 +1,8 @@
-///src/app/api/login/route.ts
-
 import { NextResponse } from "next/server";
-import { connectDB } from "@/src/backend/lib/mongodb";
-import User from "@/src/backend/models/user";
-//import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs"; // Import bcrypt directly for debugging
-
-// User sessions storage
-const userSessions = new Map();
+import { connectDB } from "../../../backend/lib/mongodb";
+import User from "../../../backend/models/user";
+import Session from "../../../backend/models/Session";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
@@ -58,6 +53,10 @@ export async function POST(req: Request) {
     // Create session token
     const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
     
+    // Calculate expiration (7 days from now)
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
     // Prepare user data for session (remove password)
     const userData = {
       id: user._id.toString(),
@@ -66,10 +65,15 @@ export async function POST(req: Request) {
       createdAt: user.createdAt
     };
 
-    // Store user data in session
-    userSessions.set(sessionToken, userData);
+    // ✅ Store session in MongoDB
+    await Session.create({
+      sessionToken,
+      userId: user._id.toString(),
+      userData,
+      expiresAt,
+    });
     
-    console.log('✅ USER SESSION CREATED:', user.email);
+    console.log('✅ USER SESSION CREATED IN MONGODB:', user.email);
     console.log('🍪 SESSION TOKEN:', sessionToken);
 
     // Create response
@@ -78,13 +82,13 @@ export async function POST(req: Request) {
       user: userData
     });
 
-    // Set session cookie (7 days) - FIXED COOKIE SETTINGS
+    // Set session cookie (7 days)
     response.cookies.set('session', sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: '/', // Important: set path to root
+      path: '/',
     });
 
     console.log('✅ COOKIE SET: session');
