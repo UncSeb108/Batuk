@@ -7,10 +7,10 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
-  const token = cookieStore.get('adminToken')?.value;
+  const adminSession = cookieStore.get('admin-session')?.value;
   
-  // If no admin token, redirect to login
-  if (!token) {
+  // If no admin session, redirect to login
+  if (!adminSession) {
     redirect('/admin-login');
   }
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "../../../../backend/lib/mongodb";
-import Session from "../../../../backend/models/Session";
+import { connectDB } from "../../../../../backend/lib/mongodb";
+import Session from "../../../../../backend/models/Session";
 
 export async function POST(request: Request) {
   try {

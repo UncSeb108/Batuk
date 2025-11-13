@@ -60,6 +60,16 @@ export default function AdminPage() {
     image: null as File | null,
   });
 
+  // Fix the logout function
+  const handleAdminLogout = async () => {
+    try {
+      await fetch("/api/auth/admin/logout", { method: "POST" });
+      window.location.href = "/admin-login"; // redirect after logout
+    } catch (err) {
+      console.error("Admin logout failed", err);
+    }
+  };
+
   // Fetch messages and artworks
   useEffect(() => {
     const fetchData = async () => {
@@ -248,21 +258,14 @@ const generateUID = () => {
         Admin Dashboard
       </h1>
       <div className="flex justify-between items-center mb-6 max-w-4xl mx-auto">
-  <h1 className="text-3xl font-bold mb-8 text-gray-900 font-playfair-display">Admin Dashboard</h1>
-  <button
-    onClick={async () => {
-      try {
-        await fetch("/api/auth/logout", { method: "POST" });
-        window.location.href = "/admin-login"; // redirect after logout
-      } catch (err) {
-        console.error("Logout failed", err);
-      }
-    }}
-    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-  >
-    Logout
-  </button>
-</div>
+        <h1 className="text-3xl font-bold mb-8 text-gray-900 font-playfair-display">Admin Dashboard</h1>
+        <button
+          onClick={handleAdminLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
 
 
       {/* Upload Artwork */}
