@@ -17,50 +17,49 @@ export default function LoginPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError(""); // Clear error when user starts typing
   };
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  try {
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+      credentials: 'include' // Add this line
+    });
 
-    try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+    const data = await response.json();
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed");
-      }
-
-      // Login successful
-      console.log("Login successful:", data);
-      
-      // Store token if your backend returns one
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-      
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-
-      // Redirect to dashboard or home page
-      router.push("/shop");
-      
-    } catch (err: any) {
-      console.error("Login error:", err);
-      setError(err.message || "Invalid email or password");
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(data.error || "Login failed");
     }
-  };
 
+    // Login successful
+    console.log("Login successful:", data);
+    
+    // Store token if your backend returns one
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
+    
+    if (data.user) {
+      localStorage.setItem("user", JSON.stringify(data.user));
+    }
+
+    // Redirect to dashboard or home page
+    router.push("/cart");
+    
+  } catch (err: any) {
+    console.error("Login error:", err);
+    setError(err.message || "Invalid email or password");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white/95 p-10 rounded-2xl shadow-2xl w-full max-w-md border border-gray-200">

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import Image from "next/image";
+import Link from "next/link";
 
 interface User {
   id: string;
@@ -24,19 +25,16 @@ export default function CartPage() {
         
         if (data.loggedIn) {
           setUser(data.user);
-        } else {
-          router.push("/login");
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-        router.push("/login");
       } finally {
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, [router]);
+  }, []);
 
   const handleLogout = async () => {
     await fetch("/api/auth/user/logout", { method: "POST" });
@@ -57,8 +55,32 @@ export default function CartPage() {
     );
   }
 
+  // Show login prompt if user is not authenticated
   if (!user) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-100 to-gray-200">
+        <div className="max-w-md mx-auto text-center p-8">
+          <h1 className="text-3xl font-bold mb-6 font-playfair-display">Authentication Required</h1>
+          <p className="text-gray-600 mb-6 font-nunito-sans">
+            Please login to view your shopping cart and manage your items.
+          </p>
+          <div className="space-y-4">
+            <Link
+              href="/login"
+              className="block bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition font-semibold font-nunito-sans"
+            >
+              Login to Your Account
+            </Link>
+            <Link
+              href="/register"
+              className="block border border-black text-black py-3 rounded-lg hover:bg-gray-100 transition font-semibold font-nunito-sans"
+            >
+              Create New Account
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import useSWR from "swr";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
 interface Artwork {
   src: string;
@@ -27,7 +33,25 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export default function ShopSection() {
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Available");
   const [toast, setToast] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const { cart, addToCart } = useCart();
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/user");
+        const data = await res.json();
+        if (data.loggedIn) {
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   // Fetch artworks from the DB and refresh every 5 seconds
   const { data: artworks = [] } = useSWR<Artwork[]>("/api/gallery", fetcher, {
@@ -44,6 +68,13 @@ export default function ShopSection() {
   };
 
   const handleAddToCart = (item: Artwork) => {
+    // Check if user is logged in
+    if (!user) {
+      setToast("Please login to add items to cart");
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+
     if (item.status !== "Available") {
       setToast("Item not available for purchase");
       return;
@@ -72,9 +103,35 @@ export default function ShopSection() {
         Shop Art Prints
       </h2>
 
+      {/* Authentication Banner for non-logged in users */}
+      {!user && (
+        <div className="max-w-4xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-blue-800 mb-2 font-playfair-display">
+            Create an account to start shopping!
+          </h3>
+          <p className="text-blue-600 mb-4 font-nunito-sans">
+            Login or register to add items to your cart and make purchases
+          </p>
+          <div className="space-x-4">
+            <a
+              href="/login"
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-nunito-sans"
+            >
+              Login
+            </a>
+            <a
+              href="/register"
+              className="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg hover:bg-blue-50 transition font-nunito-sans"
+            >
+              Register
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Toast */}
       {toast && (
-        <div className="fixed top-20 right-4 bg-black text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300">
+        <div className="fixed top-20 right-4 bg-black text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 font-nunito-sans">
           {toast}
         </div>
       )}
@@ -86,7 +143,7 @@ export default function ShopSection() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 text-sm sm:text-base font-semibold transition-all duration-300 cursor-pointer ${
+              className={`px-6 py-3 text-sm sm:text-base font-semibold transition-all duration-300 cursor-pointer font-nunito-sans ${
                 activeTab === tab
                   ? "bg-black text-white"
                   : "text-gray-700 hover:bg-gray-100"
@@ -101,7 +158,7 @@ export default function ShopSection() {
       {/* Tab Content */}
       <div className="max-w-6xl mx-auto">
         {grouped[activeTab].length === 0 ? (
-          <p className="text-center text-gray-500 italic py-10">
+          <p className="text-center text-gray-500 italic py-10 font-nunito-sans">
             No artworks available under {activeTab}.
           </p>
         ) : (
@@ -129,7 +186,7 @@ export default function ShopSection() {
                     </span>
                   )}
                   {item.status === "Exhibition" && (
-                    <span className="absolute top-3 right-3 bg-black text-white text-xs px-3 py-1 uppercase font-semibold">
+                    <span className="absolute top-3 right-3 bg-black text-white text-xs px-3 py-1 uppercase font-semibold font-nunito-sans">
                       Exhibition
                     </span>
                   )}
@@ -142,9 +199,13 @@ export default function ShopSection() {
                 {item.status === "Available" ? (
                   <button
                     onClick={() => handleAddToCart(item)}
-                    className="mt-3 w-full py-2 border border-black text-sm text-black uppercase font-nunito-sans transition-all duration-300 group-hover:bg-black group-hover:text-white flex items-center justify-center gap-2"
+                    className={`mt-3 w-full py-2 border border-black text-sm uppercase font-nunito-sans transition-all duration-300 flex items-center justify-center gap-2 ${
+                      user 
+                        ? "text-black group-hover:bg-black group-hover:text-white" 
+                        : "text-gray-400 border-gray-400 cursor-not-allowed"
+                    }`}
                   >
-                    Add to Cart <ShoppingCart size={16} />
+                    {user ? "Add to Cart" : "Login to Buy"} <ShoppingCart size={16} />
                   </button>
                 ) : item.status === "Exhibition" ? (
                   <button

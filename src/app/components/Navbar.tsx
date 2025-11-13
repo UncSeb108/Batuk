@@ -22,47 +22,61 @@ interface NavLink {
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const pathname = usePathname();
   const { cart } = useCart();
 
-  // Check authentication status
+  // Check authentication status - ONLY USER AUTH
   useEffect(() => {
     const checkAuth = async () => {
+      setAuthLoading(true);
       try {
-        // Check admin auth
-        const adminRes = await fetch('/api/auth/check');
-        const adminData = await adminRes.json();
-        setIsAdmin(adminData.loggedIn);
-
-        // Check user auth
-        const userRes = await fetch('/api/auth/user');
-        const userData = await userRes.json();
-        if (userData.loggedIn) {
-          setUser(userData.user);
+        console.log('🔍 Checking auth status...');
+        
+        // Check user auth only - NO ADMIN CHECK
+        const userRes = await fetch('/api/auth/user', {
+          credentials: 'include'
+        });
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          console.log('👤 User auth response:', userData);
+          if (userData.loggedIn) {
+            setUser(userData.user);
+          } else {
+            setUser(null);
+          }
         }
       } catch (error) {
         console.error('Auth check failed:', error);
-        setIsAdmin(false);
         setUser(null);
+      } finally {
+        setAuthLoading(false);
       }
     };
 
     checkAuth();
+
+    // Set up periodic auth check
+    const interval = setInterval(checkAuth, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogout = async () => {
     try {
-      if (isAdmin) {
-        await fetch('/api/auth/logout', { method: 'POST' });
-        setIsAdmin(false);
-      }
-      if (user) {
-        await fetch('/api/auth/user/logout', { method: 'POST' });
-        setUser(null);
-      }
-      window.location.reload(); // Refresh to update UI
+      console.log('🚪 Logging out...');
+      
+      // Logout from user session only - NO ADMIN LOGOUT
+      await fetch('/api/auth/user/logout', { 
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      setUser(null);
+      console.log('✅ Logout successful');
+      
+      // Refresh to update UI state completely
+      window.location.href = '/home';
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -78,20 +92,17 @@ export default function Navbar() {
     { label: "Cart", href: "/cart" },
   ];
 
-  // Auth links - show appropriate links based on auth status
+  // Auth links - ONLY USER AUTH, NO ADMIN
   let authLinks: NavLink[] = [];
   
-  if (isAdmin) {
-    authLinks = [
-      { label: "Admin", href: "/admin", icon: "admin" },
-      { label: "Logout", href: "#", icon: "logout", action: handleLogout }
-    ];
-  } else if (user) {
+  if (user) {
+    // User is logged in
     authLinks = [
       { label: `Hi, ${user.name.split(' ')[0]}`, href: "/profile", icon: "user" },
       { label: "Logout", href: "#", icon: "logout", action: handleLogout }
     ];
   } else {
+    // User is not logged in
     authLinks = [
       { label: "Login", href: "/login", icon: "login" },
       { label: "Register", href: "/register", icon: "register" }
@@ -109,6 +120,24 @@ export default function Navbar() {
   const closeMenu = () => setIsOpen(false);
 
   if (pathname === "/") return null;
+
+  // Show loading state briefly
+  if (authLoading) {
+    return (
+      <nav className="fixed top-0 left-0 w-full bg-[#ffffff]/70 text-[#000000] z-100 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/home" className="flex items-center space-x-2">
+              <span className="font-bold text-3xl tracking-wide font-playfair-display">
+                Battuk Arts
+              </span>
+            </Link>
+            <div className="text-sm text-gray-500 font-nunito-sans">Loading...</div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-[#ffffff]/70 text-[#000000] z-100 backdrop-blur-md">
@@ -139,7 +168,7 @@ export default function Navbar() {
               </Link>
             ))}
             
-            {/* Auth Links with better styling */}
+            {/* Auth Links - NO ADMIN */}
             <div className="flex items-center space-x-6 border-l border-gray-300 pl-6 ml-2">
               {authLinks.map(({ href, label, icon, action }) => (
                 <div key={label}>
@@ -158,8 +187,8 @@ export default function Navbar() {
                         pathname === href ? "font-semibold" : ""
                       }`}
                     >
-                      {icon === "admin" && <User size={16} />}
                       {icon === "user" && <User size={16} />}
+                      {icon === "login" && <User size={16} />}
                       <span>{label}</span>
                     </Link>
                   )}
@@ -240,7 +269,7 @@ export default function Navbar() {
                         action();
                         closeMenu();
                       }}
-                      className="block hover:text-gray-600 text-lg transition w-full"
+                      className="block hover:text-gray-600 text-lg transition w-full font-nunito-sans"
                     >
                       {label}
                     </button>
@@ -248,7 +277,7 @@ export default function Navbar() {
                     <Link
                       href={href}
                       onClick={closeMenu}
-                      className="block hover:text-gray-600 text-lg transition"
+                      className="block hover:text-gray-600 text-lg transition font-nunito-sans"
                     >
                       {label}
                     </Link>
