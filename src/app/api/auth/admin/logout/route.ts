@@ -1,23 +1,24 @@
 import { NextResponse } from "next/server";
-
-// Admin sessions storage
-const adminSessions = new Map();
+import { connectDB } from "../../../../backend/lib/mongodb";
+import Session from "../../../../backend/models/Session";
 
 export async function POST(request: Request) {
   try {
+    await connectDB();
+    
     // Get admin session token from cookies
     const cookies = request.headers.get('cookie') || '';
-    const adminToken = cookies
+    const adminSessionToken = cookies
       .split(';')
       .find(c => c.trim().startsWith('admin-session='))
       ?.split('=')[1];
 
-    console.log('🔍 Logging out admin session:', adminToken);
+    console.log('🔍 Logging out admin session:', adminSessionToken);
 
-    if (adminToken) {
-      // Remove admin session
-      adminSessions.delete(adminToken);
-      console.log('✅ Admin session removed');
+    if (adminSessionToken) {
+      // Remove admin session from MongoDB
+      await Session.deleteOne({ sessionToken: adminSessionToken });
+      console.log('✅ Admin session removed from MongoDB');
     }
 
     const response = NextResponse.json({ 
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 0 // Expire immediately
+      maxAge: 0
     });
 
     return response;

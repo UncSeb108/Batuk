@@ -12,34 +12,36 @@ export default function AdminLoginPage() {
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  try {
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
+    try {
+      // ✅ FIXED: Use the correct admin login endpoint
+      const res = await fetch("/api/auth/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error || "Login failed");
-      return;
+      if (!res.ok) {
+        setError(data.error || "Login failed");
+        return;
+      }
+
+      // ✅ Success - redirect to admin page
+      window.location.href = "/admin";
+      
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // ✅ Success - redirect to admin page
-    window.location.href = "/admin";
-    
-  } catch (err) {
-    console.error(err);
-    setError("Something went wrong. Try again.");
-  } finally {
-    setLoading(false);
-  }
-};
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form

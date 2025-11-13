@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import Admin from "../../../../../backend/models/Admin";
+import Session from "../../../../../backend/models/Session";
 import { connectDB } from "../../../../../backend/lib/mongodb";
-
 import bcrypt from "bcryptjs";
-
-// Admin sessions storage
-const adminSessions = new Map();
 
 export async function POST(req: Request) {
   try {
@@ -29,8 +26,12 @@ export async function POST(req: Request) {
     console.log('🎉 ADMIN LOGIN SUCCESSFUL');
 
     // Create admin session token
-    const adminToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
     
+    // Calculate expiration (1 day from now)
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 1);
+
     // Prepare admin data for session
     const adminData = {
       id: admin._id.toString(),
@@ -39,10 +40,15 @@ export async function POST(req: Request) {
       role: 'admin'
     };
 
-    // Store admin data in session
-    adminSessions.set(adminToken, adminData);
+    // ✅ Store admin session in MongoDB
+    await Session.create({
+      sessionToken,
+      userId: admin._id.toString(),
+      userData: adminData,
+      expiresAt,
+    });
     
-    console.log('✅ ADMIN SESSION CREATED:', admin.username);
+    console.log('✅ ADMIN SESSION CREATED IN MONGODB:', admin.username);
 
     const response = NextResponse.json({ 
       message: "Admin login successful",
@@ -50,7 +56,7 @@ export async function POST(req: Request) {
     });
 
     // Set admin session cookie (1 day)
-    response.cookies.set("admin-session", adminToken, {
+    response.cookies.set("admin-session", sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
