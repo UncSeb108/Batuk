@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+// If mongodb.ts imports models, use relative paths with .js
+
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 const MONGODB_DB = process.env.MONGODB_DB || "BatukDB";

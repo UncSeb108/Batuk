@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { connectDB } from "../../../backend/lib/mongodb"; // Now pointing to lib/mongodb
+import { connectDB } from "../../../backend/lib/mongodb";
 import User from "../../../backend/models/user";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { name, email, password } = body;
+
+    console.log("📝 REGISTRATION DATA:", { name, email, passwordLength: password.length });
 
     // Validation
     if (!name || !email || !password) {
@@ -35,13 +36,16 @@ export async function POST(req: Request) {
       );
     }
 
-    // Hash password and create user
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // ✅ REMOVED MANUAL HASHING - Let the User model handle it
+    console.log("👤 CREATING USER (password will be auto-hashed by model)...");
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password, // Pass plain password - model will hash it
     });
+
+    console.log("✅ USER CREATED:", user.email);
+    console.log("📝 STORED PASSWORD HASH:", user.password);
 
     // Return user without password
     const userResponse = {
@@ -60,7 +64,7 @@ export async function POST(req: Request) {
     );
 
   } catch (error: any) {
-    console.error("Registration error:", error);
+    console.error("❌ REGISTRATION ERROR:", error);
     
     return NextResponse.json(
       { error: "Internal server error" },

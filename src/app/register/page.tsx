@@ -21,55 +21,40 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    // Frontend validation
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
+  try {
+    const response = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      }),
+      credentials: 'include' // Add this line for register too
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Registration failed");
     }
 
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Registration failed");
-      }
-
-      // Registration successful
-      console.log("Registration successful:", data);
-      
-      // Redirect to login page or dashboard
-      router.push("/login?message=Registration successful! Please login.");
-      
-    } catch (err: any) {
-      console.error("Registration error:", err);
-      setError(err.message || "Something went wrong during registration");
-    } finally {
-      setLoading(false);
-    }
-  };
+    console.log("Registration successful:", data);
+    router.push("/login?message=Registration successful! Please login.");
+    
+  } catch (err: any) {
+    console.error("Registration error:", err);
+    setError(err.message || "Something went wrong during registration");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
