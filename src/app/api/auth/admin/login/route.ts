@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import Admin from "../../../../../backend/models/Admin";
 import Session from "../../../../../backend/models/Session";
 import { connectDB } from "../../../../../backend/lib/mongodb";
@@ -24,6 +25,12 @@ export async function POST(req: Request) {
     }
 
     console.log('🎉 ADMIN LOGIN SUCCESSFUL');
+
+    // ✅ CLEANUP: Delete all existing admin sessions BEFORE creating new one
+    await Session.deleteMany({ 
+      "userData.username": username,
+      "userData.role": "admin" 
+    });
 
     // Create admin session token
     const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -60,7 +67,8 @@ export async function POST(req: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 24 * 60 * 60 // 1 day
+      maxAge: 24 * 60 * 60, // 1 day
+      path: '/',
     });
 
     return response;

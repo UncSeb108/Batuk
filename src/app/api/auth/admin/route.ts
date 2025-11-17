@@ -1,19 +1,22 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "../../../../../backend/lib/mongodb";
-import Session from "../../../../../backend/models/Session";
+import { cookies } from "next/headers";
+import { connectDB } from "../../../../backend/lib/mongodb";
+import Session from "../../../../backend/models/Session";
+
+// ✅ Add interface for admin user data
+interface AdminUserData {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+}
 
 export async function GET(request: Request) {
   try {
     await connectDB();
     
-    // Get admin session token from cookies
-    const cookies = request.headers.get('cookie') || '';
-    console.log('🍪 ALL ADMIN COOKIES:', cookies);
-
-    const adminSessionToken = cookies
-      .split(';')
-      .find(c => c.trim().startsWith('admin-session='))
-      ?.split('=')[1];
+    const cookieStore = await cookies();
+    const adminSessionToken = cookieStore.get('admin-session')?.value;
 
     console.log('🔍 Checking admin session:', adminSessionToken);
 
@@ -28,7 +31,7 @@ export async function GET(request: Request) {
     // Get session from MongoDB
     const session = await Session.findOne({ 
       sessionToken: adminSessionToken,
-      expiresAt: { $gt: new Date() } // Only valid sessions
+      expiresAt: { $gt: new Date() }
     });
 
     if (!session) {
@@ -39,20 +42,14 @@ export async function GET(request: Request) {
       });
     }
 
-    // Check if user has admin role
-    if (session.userData.role !== 'admin') {
-      console.log('❌ User is not an admin:', session.userData.username);
-      return NextResponse.json({ 
-        loggedIn: false,
-        message: 'Access denied - admin role required' 
-      });
-    }
-
-    console.log('✅ Admin session valid:', session.userData.username);
+    // ✅ FIX: Use type assertion
+    const userData = session.userData as AdminUserData;
+    
+    console.log('✅ Admin session valid:', userData.name);
     
     return NextResponse.json({
       loggedIn: true,
-      admin: session.userData
+      admin: userData
     });
 
   } catch (error) {
