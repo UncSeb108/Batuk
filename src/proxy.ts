@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import jwt from 'jsonwebtoken';
 
 export function proxy(req: NextRequest) {
-  const token = req.cookies.get('adminToken')?.value;
+  const adminSession = req.cookies.get('admin-session')?.value;
   const isAdminPage = req.nextUrl.pathname.startsWith('/admin');
   const isAdminLoginPage = req.nextUrl.pathname === '/admin-login';
 
@@ -12,20 +11,14 @@ export function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protect admin pages
+  // Protect admin pages - check for admin-session cookie
   if (isAdminPage) {
-    if (!token) {
+    if (!adminSession) {
       return NextResponse.redirect(new URL('/admin-login', req.url));
     }
-
-    try {
-      jwt.verify(token, process.env.JWT_SECRET!);
-      return NextResponse.next();
-    } catch (error) {
-      const response = NextResponse.redirect(new URL('/admin-login', req.url));
-      response.cookies.delete('adminToken');
-      return response;
-    }
+    
+    // The actual admin validation will happen in the admin route
+    return NextResponse.next();
   }
 
   return NextResponse.next();

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { connectDB } from "../../../../../backend/lib/mongodb";
 import Session from "../../../../../backend/models/Session";
 
@@ -6,12 +7,9 @@ export async function POST(request: Request) {
   try {
     await connectDB();
     
-    // Get admin session token from cookies
-    const cookies = request.headers.get('cookie') || '';
-    const adminSessionToken = cookies
-      .split(';')
-      .find(c => c.trim().startsWith('admin-session='))
-      ?.split('=')[1];
+    // ✅ FIX: Use await with cookies()
+    const cookieStore = await cookies();
+    const adminSessionToken = cookieStore.get('admin-session')?.value;
 
     console.log('🔍 Logging out admin session:', adminSessionToken);
 
@@ -31,7 +29,8 @@ export async function POST(request: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 0
+      maxAge: 0,
+      path: '/',
     });
 
     return response;
