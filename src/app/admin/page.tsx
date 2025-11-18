@@ -350,17 +350,36 @@ const generateUID = () => {
               <option>Completed</option>
             </select>
           </div>
+          {/* File input with button style */}
           <div className="col-span-full">
-            <label htmlFor="image" className="block mb-1 font-medium text-gray-900">Select Artwork Image</label>
+            <label htmlFor="image" className="block mb-1 font-medium text-gray-900">
+              Select Artwork Image
+            </label>
+            
+            {/* Hidden file input */}
             <input
               id="image"
               name="image"
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              className="w-full bg-white text-gray-900"
+              className="hidden"
             />
+            
+            {/* Button-styled label */}
+            <label
+              htmlFor="image"
+              className="inline-block px-4 py-2 bg-blue-600 text-white font-medium rounded cursor-pointer hover:bg-blue-700 transition-colors"
+            >
+              Choose File
+            </label>
+            
+            {/* Show selected file name */}
+            {form.image && (
+              <span className="ml-3 text-sm text-gray-600">{form.image.name}</span>
+            )}
           </div>
+
           <div>
             <label htmlFor="materials" className="block mb-1 font-medium text-gray-900">Materials</label>
             <input
