@@ -151,65 +151,7 @@ Ensure that your `.env.local` variables are also set in your deployment environm
 
 To log in to the admin dashboard, you need at least one admin account in the database. Here's how to create it:
 
-### 1️⃣ Via MongoDB Shell or Compass
-
-Insert a new admin manually in the `admins` collection of your database:
-
-```javascript
-db.admins.insertOne({
-  username: "yourAdminUsername",
-  password: "<hashed-password>"
-});
-```
-
-> **Important:** The password must be hashed using **bcrypt**. Example using Node.js:
-
-```javascript
-import bcrypt from "bcryptjs";
-
-const password = "yourPlainPassword";
-const hashedPassword = await bcrypt.hash(password, 10);
-console.log(hashedPassword);
-```
-
-Use the resulting `hashedPassword` in your MongoDB document.
-
----
-
-### 2️⃣ Optional: Admin Creation Script
-
-You can also create a simple Node.js script in your project root:
-
-```javascript
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
-import Admin from "./src/backend/models/Admin";
-import { connectDB } from "./src/backend/lib/mongodb";
-
-async function createAdmin() {
-  await connectDB();
-  const username = "yourAdminUsername";
-  const password = "yourPlainPassword";
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const admin = new Admin({ username, password: hashedPassword });
-  await admin.save();
-  console.log("Admin created:", username);
-  process.exit(0);
-}
-
-createAdmin();
-```
-
-Run it with:
-
-```bash
-node createAdmin.js
-```
-
-After this, you can log in to `/admin-login` using the credentials you set.
-
----
+## 2️⃣ Optional: Admin Creation Script
 
 ### 🔒 Security Note
 
