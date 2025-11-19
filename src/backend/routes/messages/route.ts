@@ -1,4 +1,5 @@
-//src/backend/models/Message.ts
+
+// src/backend/routes/messages/route.ts
 import { connectDB } from "../../lib/mongodb";
 import Message from "../../models/Message";
 import { NextResponse } from "next/server";
@@ -23,5 +24,31 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to save message" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ error: "Message ID is required" }, { status: 400 });
+    }
+
+    await connectDB();
+    const deletedMessage = await Message.findByIdAndDelete(id);
+
+    if (!deletedMessage) {
+      return NextResponse.json({ error: "Message not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ 
+      message: "Message deleted successfully",
+      deletedMessage 
+    });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to delete message" }, { status: 500 });
   }
 }

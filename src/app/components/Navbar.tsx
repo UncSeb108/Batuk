@@ -92,23 +92,21 @@ export default function Navbar() {
     { label: "Cart", href: "/cart" },
   ];
 
-  // Auth links - ONLY USER AUTH, NO ADMIN
-  let authLinks: NavLink[] = [];
-  
-  if (user) {
-    // User is logged in
-    authLinks = [
-      { label: `Hi, ${user.name.split(' ')[0]}`, href: "/profile", icon: "user" },
-      { label: "Logout", href: "#", icon: "logout", action: handleLogout }
-    ];
-  } else {
-    // User is not logged in
-    authLinks = [
-      { label: "Login", href: "/login", icon: "login" },
-      { label: "Register", href: "/register", icon: "register" }
-    ];
-  }
+// Auth links - ONLY USER AUTH, NO ADMIN
+let authLinks: NavLink[] = [];
 
+if (user) {
+  // User is logged in - REMOVED PROFILE LINK
+  authLinks = [
+    { label: "Logout", href: "#", icon: "logout", action: handleLogout }
+  ];
+} else {
+  // User is not logged in
+  authLinks = [
+    { label: "Login", href: "/login", icon: "login" },
+    { label: "Register", href: "/register", icon: "register" }
+  ];
+}
   // Combine all links
   const navLinks: NavLink[] = [...baseNavLinks, ...authLinks];
 

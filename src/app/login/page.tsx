@@ -53,7 +53,7 @@ export default function LoginPage() {
       }
 
       // Redirect to dashboard or home page
-      router.push("/cart");
+      router.push("/gallery");
       
     } catch (err: any) {
       console.error("Login error:", err);
