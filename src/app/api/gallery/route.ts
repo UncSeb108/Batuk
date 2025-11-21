@@ -1,9 +1,4 @@
 // File: src/app/api/gallery/route.ts
-export * from "../../../backend/routes/gallery/route";
-
-// File: src/app/api/gallery/route.ts
-export * from "../../../backend/routes/gallery/route";
-
 import { connectDB } from "@/src/backend/lib/mongodb";
 import Gallery from "@/src/backend/models/Gallery";
 import { NextResponse } from "next/server";
@@ -112,14 +107,12 @@ export async function PATCH(req: Request) {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id"); // Ensure ID comes from ?id=<art_id>
+    const id = searchParams.get("id");
     if (!id) {
       return NextResponse.json({ error: "ID required" }, { status: 400 });
     }
 
-    const body = await req.json(); // Expect: { status?: string, state?: string }
-
-    // Only update provided fields
+    const body = await req.json();
     const updateData: Record<string, string> = {};
     if (body.status) updateData.status = body.status;
     if (body.state) updateData.state = body.state;
@@ -134,5 +127,91 @@ export async function PATCH(req: Request) {
   } catch (err) {
     console.error("Update failed:", err);
     return NextResponse.json({ error: "Failed to update artwork" }, { status: 500 });
+  }
+}
+
+// -------------------- PUT --------------------
+// Update all artwork details including image
+export async function PUT(req: Request) {
+  try {
+    await connectDB();
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ error: "ID required" }, { status: 400 });
+    }
+
+    // Check if artwork exists
+    const existingArtwork = await Gallery.findById(id);
+    if (!existingArtwork) {
+      return NextResponse.json({ error: "Artwork not found" }, { status: 404 });
+    }
+
+    const formData = await req.formData();
+    const title = formData.get("title") as string;
+    const price = formData.get("price") as string;
+    const status = formData.get("status") as string;
+    const state = formData.get("state") as string;
+    const materials = formData.get("materials") as string;
+    const duration = formData.get("duration") as string;
+    const type = formData.get("type") as string;
+    const inspiration = formData.get("inspiration") as string;
+
+    const file = formData.get("image") as File | null;
+
+    let imageUrl = existingArtwork.src;
+
+    // If new image is provided, upload to Cloudinary
+    if (file && file.size > 0) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        const result = await new Promise<any>((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "batuk_gallery", public_id: `${Date.now()}_${existingArtwork.uid}` },
+            (error, result) => (error ? reject(error) : resolve(result))
+          );
+          uploadStream.end(buffer);
+        });
+
+        imageUrl = result.secure_url;
+      } catch (uploadError) {
+        console.error("Image upload failed:", uploadError);
+        return NextResponse.json({ error: "Failed to upload image" }, { status: 500 });
+      }
+    }
+
+    // Prepare update data
+    const updateData = {
+      title,
+      price,
+      status,
+      state,
+      materials,
+      duration,
+      type,
+      inspiration,
+      src: imageUrl,
+    };
+
+    // Remove undefined fields
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key as keyof typeof updateData] === undefined) {
+        delete updateData[key as keyof typeof updateData];
+      }
+    });
+
+    const updatedArtwork = await Gallery.findByIdAndUpdate(
+      id, 
+      updateData, 
+      { new: true, runValidators: true }
+    );
+
+    return NextResponse.json(updatedArtwork);
+  } catch (err) {
+    console.error("PUT update failed:", err);
+    return NextResponse.json({ error: "Failed to update artwork details" }, { status: 500 });
   }
 }
