@@ -14,6 +14,8 @@ interface Artwork {
   price: string;
   status: string;
   state: string;
+  artist: string;
+  typeCode: string;
   materials?: string;
   duration?: string;
   type?: string;
@@ -50,11 +52,18 @@ export default function GallerySection() {
     } else if (cart.find((c) => c.uid === item.uid)) {
       setToast("Already in cart");
     } else {
+      // Pass ALL artwork data to cart
       addToCart({
         uid: item.uid,
         title: item.title,
+        artist: item.artist,
         price: item.price,
         src: item.src,
+        typeCode: item.typeCode,
+        materials: item.materials,
+        duration: item.duration,
+        type: item.type,
+        inspiration: item.inspiration,
         status: item.status,
       });
       setToast("Added to cart");

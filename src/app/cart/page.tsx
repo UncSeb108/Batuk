@@ -171,9 +171,12 @@ export default function CartPage() {
                 <span>Total</span>
                 <span>KES {total.toFixed(2)}</span>
               </div>
-              <button className="w-full py-3 bg-gray-900 text-white rounded-lg hover:bg-black transition font-medium cursor-pointer">
-                Proceed to Checkout →
-              </button>
+              <button 
+  onClick={() => router.push("/checkout")}
+  className="w-full py-3 bg-gray-900 text-white rounded-lg hover:bg-black transition font-medium cursor-pointer"
+>
+  Proceed to Checkout →
+</button>
             </div>
           </div>
         )}

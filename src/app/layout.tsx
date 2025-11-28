@@ -42,7 +42,14 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${nunitoSans.variable} antialiased`}
     >
-      <body>
+      <head>
+        {/* Prevent iOS from auto-formatting content */}
+        <meta
+          name="format-detection"
+          content="telephone=no, date=no, email=no, address=no"
+        />
+      </head>
+      <body suppressHydrationWarning={true}>
         <CartProvider>
           <Navbar />
           <PathnameWrapper>{children}</PathnameWrapper>
