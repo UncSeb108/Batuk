@@ -1,6 +1,3 @@
-Perfect 👍 — here’s an updated **README.md** for your project that includes all your environment setup details, MongoDB connection, and instructions for running the app locally and in production.
-
----
 
 ````markdown
 # 🎨 Batuk Art Gallery
